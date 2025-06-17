@@ -4,12 +4,14 @@ import { googleProfile } from '../../utils/type.ts';
 
 export interface IProviderUser extends Document {
     userId: string,
+    providerId: string,
     type: string,
     data: googleProfile
 }
 
 export const providerUserSchema = new mongoose.Schema<IProviderUser>({
     userId: String,
+    providerId: String,
     type: String,
     data: Object
 }, {timestamps: true});

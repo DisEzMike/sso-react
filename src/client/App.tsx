@@ -1,8 +1,9 @@
 import { FormEventHandler, useEffect } from "react";
 import "./App.css";
 import { useSearchParams } from "react-router-dom";
-import GoogleButton from "./components/GoogleButton";
+import GoogleButton from "./components/Button/GoogleButton";
 import SignInForm from "./components/SignInForm";
+import LineButton from "./components/Button/LineButton";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,8 +22,9 @@ function App() {
         <div className="mt-5 mx-auto p-5 isolate aspect-video w-96 rounded-xl bg-white/20 shadow-lg ring-1 ring-black/5">         
           <SignInForm />
         <div className="mt-5 separator font-semibold">Or</div>
-        <div className="mt-5">
+        <div className="mt-5 flex flex-col gap-2">
           <GoogleButton />
+          <LineButton />
         </div>
         </div>
       </div>

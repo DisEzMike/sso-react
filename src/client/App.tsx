@@ -34,7 +34,8 @@ function App() {
                   type="email"
                   required
                   autoComplete="email"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 sm:text-sm/6"
+                  disabled
+                  className="block w-full rounded-md disabled:bg-gray-400 disabled:text-stone-900 bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 sm:text-sm/6"
                 />
               </div>
             </div>
@@ -57,7 +58,8 @@ function App() {
                   type="password"
                   required
                   autoComplete="current-password"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 sm:text-sm/6"
+                  disabled
+                  className="block w-full rounded-md disabled:bg-gray-400 disabled:text-stone-900 bg-white px-3 py-1.5  text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-sky-600 sm:text-sm/6"
                 />
               </div>
             </div>
@@ -65,7 +67,8 @@ function App() {
             <div>
               <button
                 type="submit"
-                className="lex w-full items-center justify-center bg-white dark:bg-stone-900 transition-all ease-in duration-75 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 dark:text-white hover:bg-stone-800 hover:text-stone-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                disabled
+                className="flex w-full items-center justify-center disabled:bg-gray-400 disabled:text-stone-900 bg-white dark:bg-stone-900 transition-all ease-in duration-75 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 dark:text-white hover:bg-stone-800 hover:text-stone-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
                 Sign in
               </button>

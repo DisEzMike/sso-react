@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 
 export interface IUser extends Document {
-    pictureUrl: string;
+    email: string
     displayName: string;
+    pictureUrl: string;
     role: 0 | 1
     created_at: Date;
     updated_at: Date;
 }
 
 export const userSchema = new mongoose.Schema<IUser>({
+    email: String,
     displayName: String,
     pictureUrl: String,
     role: {

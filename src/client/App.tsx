@@ -12,11 +12,6 @@ function App() {
     if (redirect_url) sessionStorage.setItem("redirect_url", redirect_url);
   })
 
-  const onSubmit: FormEventHandler = (e) => {
-    e.preventDefault();
-
-    console.log("submit!");
-  }
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -24,7 +19,7 @@ function App() {
           Sign in to your account
         </h2>
         <div className="mt-5 mx-auto p-5 isolate aspect-video w-96 rounded-xl bg-white/20 shadow-lg ring-1 ring-black/5">         
-          <SignInForm onSubmit={onSubmit} />
+          <SignInForm />
         <div className="mt-5 separator font-semibold">Or</div>
         <div className="mt-5">
           <GoogleButton />

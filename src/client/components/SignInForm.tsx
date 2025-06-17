@@ -1,11 +1,17 @@
 import { FormEventHandler } from "react";
 
 type SignInFormProps = {
-    onSubmit: FormEventHandler
 }
 
 function SignInForm(props: SignInFormProps) {
-    const {onSubmit} = props;
+    const {} = props;
+
+    const onSubmit: FormEventHandler = (e) => {
+        e.preventDefault();
+
+        console.log("submit!");
+    }
+
     return ( 
         <>
           <form action="#" onSubmit={onSubmit} method="POST" className="space-y-6">

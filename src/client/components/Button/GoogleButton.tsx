@@ -4,7 +4,12 @@ import { useGoogleLogin as GoogleLogin } from "../../function/auth";
 function GoogleButton() {
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      const response = await GoogleLogin(tokenResponse);
+      try {
+        const response = await GoogleLogin(tokenResponse);
+        console.log(response)
+      } catch (error) {
+        console.error(error)
+      }
     }
   });
 

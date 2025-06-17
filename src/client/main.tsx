@@ -5,7 +5,7 @@ import ReactDOM from "react-dom/client";
 
 import App from "./App";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import NotFound from "./assets/404";
+import NotFound from "./404";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

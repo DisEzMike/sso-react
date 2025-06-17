@@ -2,6 +2,7 @@ import express from "express";
 import ViteExpress from "vite-express";
 import cors from 'cors';
 import bodyParse from 'body-parser';
+import morgan from 'morgan';
 
 import {config} from 'dotenv';
 import { router } from "./src/routes/app.route.js";
@@ -12,7 +13,11 @@ const startServer = async () => {
   const app = express();
   await connectDB();
 
-  app.use(cors());
+  app.use(morgan("dev"));
+  app.use(cors({
+    origin: "*",
+    credentials: true
+  }));
   app.use(bodyParse.json());
   
   app.use('/api', router)

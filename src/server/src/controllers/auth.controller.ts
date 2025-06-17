@@ -44,8 +44,14 @@ export const loginRoute: RequestHandler = async (req, res) => {
                 payload = {user} as any;
                 jwt.sign(payload, process.env.JWT_SECRET!, {expiresIn: "1d"}, (error, token) => {
                     if (error) throw error;
+                    res.cookie("sso_token", token, {
+                        domain: '.mikenatcavon.com',
+                        path: '/',
+                        httpOnly: true,
+                        secure: true,
+                        maxAge: 24 * 60 * 60 * 1000
+                    })
                     res.json({payload, token});
-                    
                 });
             } catch (error) {
                 console.log(error)

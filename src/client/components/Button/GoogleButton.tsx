@@ -1,8 +1,17 @@
+import { useGoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin as GoogleLogin } from "../../function/auth";
+
 function GoogleButton() {
+  const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const response = await GoogleLogin(tokenResponse);
+    }
+  });
+
     return ( 
         <>
           <button 
-            onClick={() => console.log("click")}
+            onClick={() => login()}
             className="flex w-full items-center justify-center disabled:bg-gray-400 disabled:text-stone-900 bg-white dark:bg-stone-900 transition-all ease-in duration-75 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 dark:text-white hover:bg-stone-800 hover:text-stone-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
               <svg className="h-6 w-6 mr-2" xmlns="http://www.w3.org/2000/svg" width="800px" height="800px" viewBox="-0.5 0 48 48" version="1.1"> 
                 <title>Google-color</title> 

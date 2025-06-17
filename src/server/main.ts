@@ -5,10 +5,12 @@ import bodyParse from 'body-parser';
 
 import {config} from 'dotenv';
 import { router } from "./src/routes/app.route.js";
+import { connectDB } from "./src/database/index.ts";
 config();
 
 const startServer = async () => {
   const app = express();
+  await connectDB();
 
   app.use(cors());
   app.use(bodyParse.json());

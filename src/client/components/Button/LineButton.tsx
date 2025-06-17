@@ -1,4 +1,4 @@
-import lineIcon from '../assets/line.svg'
+import lineIcon from '../../assets/line.svg'
 
 function LineButton() {
     return ( 

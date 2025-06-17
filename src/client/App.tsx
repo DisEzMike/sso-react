@@ -1,7 +1,14 @@
-import { FormEvent } from "react";
+import { FormEvent, useEffect } from "react";
 import "./App.css";
+import { useParams, useSearchParams } from "react-router-dom";
 
 function App() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const redirect_url = searchParams.get("redirect_url");
+    if (redirect_url) sessionStorage.setItem("redirect_url", redirect_url);
+  })
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();

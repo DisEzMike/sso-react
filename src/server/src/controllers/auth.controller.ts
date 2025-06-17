@@ -1,6 +1,9 @@
 import { RequestHandler } from "express";
-import { loginType } from "../utils/type.js";
+import { googleProfile, loginType } from "../utils/type.js";
 import axios from "axios";
+import jwt from "jsonwebtoken";
+import { ProviderUser } from "../database/model/ProviderUser.ts";
+import { User } from "../database/model/User.ts";
 
 export const loginRoute: RequestHandler = async (req, res) => {
 
@@ -22,7 +25,28 @@ export const loginRoute: RequestHandler = async (req, res) => {
                     }
                 });
 
-                res.json(response.data)
+                let payload = {type, data: response.data as googleProfile};
+                const providerUser = await ProviderUser.findOneAndUpdate({providerId: payload.data.id});
+                let user;
+                if (providerUser) {
+                    user = await User.findByIdAndUpdate(providerUser.userId, {new: true}); 
+                } else {
+                    const new_providerUser = new ProviderUser({
+                        type: payload.type,
+                        providerId: payload.data.id,
+                        data: payload.data
+                    })
+                    await new_providerUser.save();
+
+                    user = await User.findByIdAndUpdate(new_providerUser.userId, {new: true}); 
+                }
+
+                payload = {user} as any;
+                jwt.sign(payload, process.env.JWT_SECRET!, {expiresIn: "1d"}, (error, token) => {
+                    if (error) throw error;
+                    res.json({payload, token});
+                    
+                });
             } catch (error) {
                 console.log(error)
             }

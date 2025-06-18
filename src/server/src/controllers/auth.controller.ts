@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
 import { IUser, User } from "../database/model/User.ts";
 
-export const loginRoute: RequestHandler = async (req, res) => {
+export const authorize: RequestHandler = async (req, res) => {
 
     if (!req.body) res.status(403).json({status: 403, message: "body not provide."});
     else {

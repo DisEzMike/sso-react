@@ -1,17 +1,31 @@
-import { FormEventHandler, useEffect } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 import "./App.css";
 import { useSearchParams } from "react-router-dom";
 import GoogleButton from "./components/Button/GoogleButton";
 import SignInForm from "./components/SignInForm";
 import LineButton from "./components/Button/LineButton";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin as GoogleLogin } from "./function/auth";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [client_id, setClientId] = useState(searchParams.get("client_id"));
+  const [state, setState] = useState(searchParams.get("state"));
+  const [redirect_uri, setRedirectUri] = useState(searchParams.get("redirect_uri"));
 
   useEffect(() => {
-    const redirect_url = searchParams.get("redirect_url");
-    if (redirect_url) sessionStorage.setItem("redirect_url", redirect_url);
   })
+
+const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const response = await GoogleLogin({...tokenResponse, client_id, state, redirect_uri});
+        console.log(response)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  });
 
   return (
     <>
@@ -23,7 +37,7 @@ function App() {
           <SignInForm />
         <div className="mt-5 separator font-semibold">Or</div>
         <div className="mt-5 flex flex-col gap-2">
-          <GoogleButton />
+          <GoogleButton onClick={() => {login()}} />
           <LineButton />
         </div>
         </div>

@@ -1,5 +1,5 @@
 import { Request, RequestHandler, Response } from "express";
-import { googleProfile, loginType } from "../utils/type.js";
+import { authCode, googleProfile, loginType } from "../utils/type.js";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
@@ -24,24 +24,23 @@ export const loginRoute: RequestHandler = async (req, res) => {
                         Authorization: `Bearer ${tokenResponse.access_token}`
                     }
                 });
-
-                let payload = {type, data: response.data as googleProfile};
-                const providerUser = await ProviderUser.findOneAndUpdate({providerId: payload.data.id});
+                const autoData = {type, data: response.data as googleProfile};
+                const providerUser = await ProviderUser.findOneAndUpdate({providerId: autoData.data.id});
                 let user;
                 if (providerUser) {
                     user = await User.findByIdAndUpdate(providerUser.userId, {new: true}); 
                 } else {
                     const new_providerUser = new ProviderUser({
-                        type: payload.type,
-                        providerId: payload.data.id,
-                        data: payload.data
+                        type: autoData.type,
+                        providerId: autoData.data.id,
+                        data: autoData.data
                     })
                     await new_providerUser.save();
 
                     user = await User.findByIdAndUpdate(new_providerUser.userId, {new: true}); 
                 }
 
-                payload = {user} as any;
+                const payload = {user_id: user!.id, client_id: data.client_id} as authCode;
                 jwt.sign(payload, process.env.JWT_SECRET!, {expiresIn: "1d"}, (error, token) => {
                     if (error) throw error;
                     // res.cookie("sso_token", token, {
@@ -51,10 +50,10 @@ export const loginRoute: RequestHandler = async (req, res) => {
                     //     secure: true,
                     //     maxAge: 24 * 60 * 60 * 1000
                     // })
-                    res.json({redirect_url: `${data.redirect_uri ? data.redirect_uri : "https://sandbox.mikenatcavon.com/signin"}?code=${token}&state=${data.state}`});
+                    res.json({redirect_url: `${data.redirect_uri}?code=${token}&state=${data.state}`});
                 });
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
 
         } else if (type == "line") {
@@ -65,15 +64,26 @@ export const loginRoute: RequestHandler = async (req, res) => {
     }
 }
 
-export const token: RequestHandler = async (req, res) => {
+export const token: any = async (req: Request, res: Response) => {
     const { code, client_id, client_secret, redirect_uri, grant_type } = req.body;
 
-    res.json({
-        access_token: code,
-        token_type: 'Bearer',
-        expires_in: 3600,
-        refresh_token: code
-    });
+    if (grant_type !== 'authorization_code') return res.status(400).json({ error: 'Unsupported grant type' });
+
+    try {
+        const authCode = jwt.verify(code, process.env.JWT_SECRET!) as authCode;
+        
+        const access_token = jwt.sign(authCode, process.env.JWT_SECRET!, {expiresIn: "1d"});
+
+        const payload = {
+            access_token,
+            token_type: 'Bearer',
+            expires_in: 24 * 60 * 60,
+        }
+
+        return res.json(payload);
+    } catch (error) {
+        return res.status(403).json({error: 403, message: "Token is expired"})
+    }
 }
 
 export const me: any = async (req: Request, res: Response) => {

@@ -14,8 +14,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <GoogleOAuthProvider clientId={process.env.clientID!}>
       <BrowserRouter>
         <Routes>
-          <Route path="/signin" element={<App />} />
-          <Route path="/" element={<Navigate to={'/signin'} />} />
+          <Route path="/" element={<App />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

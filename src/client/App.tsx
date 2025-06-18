@@ -13,7 +13,7 @@ function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [client_id, setClientId] = useState(searchParams.get("client_id"));
   const [state, setState] = useState(searchParams.get("state"));
-  const [redirect_uri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST + '/signin');
+  const [redirect_uri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST);
 
   useEffect(() => {
     onLoadwithCode();

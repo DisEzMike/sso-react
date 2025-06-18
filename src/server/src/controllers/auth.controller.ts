@@ -1,9 +1,9 @@
-import { RequestHandler } from "express";
+import { Request, RequestHandler, Response } from "express";
 import { googleProfile, loginType } from "../utils/type.js";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
-import { User } from "../database/model/User.ts";
+import { IUser, User } from "../database/model/User.ts";
 
 export const loginRoute: RequestHandler = async (req, res) => {
 
@@ -51,7 +51,7 @@ export const loginRoute: RequestHandler = async (req, res) => {
                     //     secure: true,
                     //     maxAge: 24 * 60 * 60 * 1000
                     // })
-                    res.redirect(`${data.redirect_uri}?code=${token}&state=${data.state}`);
+                    res.json({redirect_url: `${data.redirect_uri ? data.redirect_uri : "https://sandbox.mikenatcavon.com/signin"}?code=${token}&state=${data.state}`});
                 });
             } catch (error) {
                 console.log(error)
@@ -66,17 +66,38 @@ export const loginRoute: RequestHandler = async (req, res) => {
 }
 
 export const token: RequestHandler = async (req, res) => {
+    const { code, client_id, client_secret, redirect_uri, grant_type } = req.body;
+
     res.json({
-        access_token: req.body.code,
+        access_token: code,
         token_type: 'Bearer',
         expires_in: 3600,
-        refresh_token: req.body.code
+        refresh_token: code
     });
 }
 
-export const user: RequestHandler = async (req, res) => {
-    res.json({
-        username: "test",
-        email: "asf@fdsaf.com"
-    });
+export const me: any = async (req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'application/json');
+
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+
+  // Assuming you have JWT verification
+  jwt.verify(token!, 'tIsEfhpwQv4mAbqHtwnAyP8wKubzRPFr', (err, data) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid token' });
+    }
+
+    const user = (data as any).user as IUser
+
+
+    const response = {
+      displayName: user.displayName, // Must exist
+      email: user.email,
+      role: user.role // Or 2 for regular users
+    };
+
+    res.json(response);
+  });
 }

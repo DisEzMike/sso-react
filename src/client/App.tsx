@@ -20,7 +20,7 @@ const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const response = await GoogleLogin({...tokenResponse, client_id, state, redirect_uri});
-        console.log(response)
+        window.location.href = response.data.redirect_url;
       } catch (error) {
         console.error(error)
       }

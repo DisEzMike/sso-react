@@ -19,6 +19,7 @@ const startServer = async () => {
     credentials: true
   }));
   app.use(bodyParse.json());
+  app.use(bodyParse.urlencoded());
   
   app.use('/oauth', router)
 

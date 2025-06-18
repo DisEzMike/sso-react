@@ -11,7 +11,7 @@ export const loginRoute: RequestHandler = async (req, res) => {
     else {
         const {body} = req;
     
-        const {type, data} = body as loginType;
+        const {type, data} = body as any;
     
         if (type == "local") {
             res.status(404).json({status: 404, message: "Local login is not active"});
@@ -44,14 +44,14 @@ export const loginRoute: RequestHandler = async (req, res) => {
                 payload = {user} as any;
                 jwt.sign(payload, process.env.JWT_SECRET!, {expiresIn: "1d"}, (error, token) => {
                     if (error) throw error;
-                    res.cookie("sso_token", token, {
-                        domain: '.mikenatcavon.com',
-                        path: '/',
-                        httpOnly: true,
-                        secure: true,
-                        maxAge: 24 * 60 * 60 * 1000
-                    })
-                    res.json({payload, token});
+                    // res.cookie("sso_token", token, {
+                    //     domain: '.mikenatcavon.com',
+                    //     path: '/',
+                    //     httpOnly: true,
+                    //     secure: true,
+                    //     maxAge: 24 * 60 * 60 * 1000
+                    // })
+                    res.redirect(`${data.redirect_uri}?code=${token}&state=${data.state}`);
                 });
             } catch (error) {
                 console.log(error)
@@ -63,4 +63,20 @@ export const loginRoute: RequestHandler = async (req, res) => {
             res.status(404).json({status: 403, message: "type is not provide"});
         }
     }
+}
+
+export const token: RequestHandler = async (req, res) => {
+    res.json({
+        access_token: req.body.code,
+        token_type: 'Bearer',
+        expires_in: 3600,
+        refresh_token: req.body.code
+    });
+}
+
+export const user: RequestHandler = async (req, res) => {
+    res.json({
+        username: "test",
+        email: "asf@fdsaf.com"
+    });
 }

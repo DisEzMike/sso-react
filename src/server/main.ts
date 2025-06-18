@@ -20,7 +20,7 @@ const startServer = async () => {
   }));
   app.use(bodyParse.json());
   
-  app.use('/api', router)
+  app.use('/oauth', router)
 
   const port = Number(process.env.PORT) || 8080;
 

@@ -28,3 +28,8 @@ export interface googleProfile {
     family_name: string,
     picture: string
 }
+
+export interface authCode {
+    user_id: string,
+    client_id: string
+}

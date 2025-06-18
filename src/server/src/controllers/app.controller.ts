@@ -5,5 +5,11 @@ import { createToken } from "../utils/auth.ts";
 export const getUser: any = (req: IRequest, res: Response) => {
     const user = req.user
     const access_token = createToken({user});
-    res.json({payload: {user}, access_token})
+    const payload = {
+        displayName: user.displayName,
+        email: user.email,
+        access_token,
+        user
+    }
+    res.json(payload)
 }

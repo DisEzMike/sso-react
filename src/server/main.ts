@@ -5,7 +5,7 @@ import bodyParse from 'body-parser';
 import morgan from 'morgan';
 
 import {config} from 'dotenv';
-import { router } from "./src/routes/app.route.js";
+import { router as authRouter } from "./src/routes/auth.route.ts";
 import { connectDB } from "./src/database/index.ts";
 config();
 
@@ -21,7 +21,7 @@ const startServer = async () => {
   app.use(bodyParse.json());
   app.use(bodyParse.urlencoded());
   
-  app.use('/oauth', router)
+  app.use('/oauth', authRouter)
 
   const port = Number(process.env.PORT) || 8080;
 

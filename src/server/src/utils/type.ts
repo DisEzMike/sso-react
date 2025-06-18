@@ -1,4 +1,6 @@
 import { TokenResponse } from "@react-oauth/google";
+import { Request } from "express";
+import { IUser } from "../database/model/User.ts";
 
 interface localLogin {
     type: 'local';
@@ -33,3 +35,5 @@ export interface authCode {
     user_id: string,
     client_id: string
 }
+
+export type IRequest = Request & {user: IUser}

@@ -17,7 +17,7 @@ function App() {
 
   useEffect(() => {
     onLoadwithCode();
-  })
+  }, [])
 
   const onLoadwithCode = async () => {
     const code = searchParams.get("code");

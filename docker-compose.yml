@@ -1,0 +1,13 @@
+services:
+  auth-server:
+    build: .
+    env_file:
+      - ".env"
+    ports:
+      - "1443:${PORT}"
+    volumes:
+      - authData:/app
+    working_dir: /app
+
+volumes:
+  authData:

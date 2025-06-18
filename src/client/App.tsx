@@ -5,7 +5,8 @@ import GoogleButton from "./components/Button/GoogleButton";
 import SignInForm from "./components/SignInForm";
 import LineButton from "./components/Button/LineButton";
 import { useGoogleLogin } from "@react-oauth/google";
-import { API_HOST, useGoogleLogin as GoogleLogin } from "./function/auth";
+import { useGoogleLogin as GoogleLogin } from "./function/auth";
+import { API_HOST } from "./utils/contant";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();

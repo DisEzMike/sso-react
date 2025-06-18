@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import {config} from 'dotenv';
 import { router as authRouter } from "./src/routes/auth.route.ts";
 import { connectDB } from "./src/database/index.ts";
+import { router as mainRouter } from "./src/routes/app.route.ts";
 config();
 
 const startServer = async () => {
@@ -21,7 +22,8 @@ const startServer = async () => {
   app.use(bodyParse.json());
   app.use(bodyParse.urlencoded());
   
-  app.use('/oauth', authRouter)
+  app.use('/api', mainRouter);
+  app.use('/oauth', authRouter);
 
   const port = Number(process.env.PORT) || 8080;
 

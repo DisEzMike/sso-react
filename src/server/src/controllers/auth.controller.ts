@@ -72,7 +72,9 @@ export const token: any = async (req: Request, res: Response) => {
     try {
         const authCode = jwt.verify(code, process.env.JWT_SECRET!) as authCode;
         
-        const access_token = jwt.sign(authCode, process.env.JWT_SECRET!, {expiresIn: "1d"});
+        const user = await User.findByIdAndUpdate(authCode.user_id);
+
+        const access_token = jwt.sign({user}, process.env.JWT_SECRET!, {expiresIn: "1d"});
 
         const payload = {
             access_token,
@@ -82,6 +84,7 @@ export const token: any = async (req: Request, res: Response) => {
 
         return res.json(payload);
     } catch (error) {
+        console.error(error)
         return res.status(403).json({error: 403, message: "Token is expired"})
     }
 }

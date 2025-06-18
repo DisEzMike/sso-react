@@ -7,9 +7,7 @@ export const getToken = async (code: string) => {
 
 	const user = await User.findByIdAndUpdate(authCode.user_id);
 
-	const access_token = jwt.sign({ user }, process.env.JWT_SECRET!, {
-		expiresIn: '1d',
-	});
+	const access_token = createToken({user});
 
 	return {
 		access_token,
@@ -17,3 +15,9 @@ export const getToken = async (code: string) => {
 		expires_in: 24 * 60 * 60,
 	};
 };
+
+export const createToken = (payload: any, expiresIn?: '1d' | number) => {
+	return jwt.sign({ payload }, process.env.JWT_SECRET!, {
+		expiresIn
+	});
+}

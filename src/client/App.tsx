@@ -7,6 +7,7 @@ import LineButton from "./components/Button/LineButton";
 import { useGoogleLogin } from "@react-oauth/google";
 import { getToken, useGoogleLogin as GoogleLogin } from "./function/auth";
 import { HOST, AUTH_URL } from "./utils/contant";
+import { getUser } from "./function/user";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,11 +24,13 @@ function App() {
     if (!code) return;
     const res = await getToken(code);
     const token = res.data; 
-
+    sessionStorage.setItem("token", token.access_token);
+    await loadProfile()
   }
 
-  const loadUser = (token: string) => {
-
+  const loadProfile = async () => {
+    const user = await getUser();
+    console.log(user);
   }
 
 const login = useGoogleLogin({

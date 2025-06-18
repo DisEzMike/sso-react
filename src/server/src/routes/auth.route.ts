@@ -10,6 +10,5 @@ router.get('/', (req, res) => {
 
 router.post("/login", authorize);
 router.post("/token", token);
-router.get("/user", me);
 
 export { router };

@@ -66,9 +66,6 @@ export const authorize: RequestHandler = async (req, res) => {
 
 export const token: any = async (req: Request, res: Response) => {
     const { code, client_id, client_secret, redirect_uri, grant_type } = req.body;
-
-    if (grant_type !== 'authorization_code') return res.status(400).json({ error: 'Unsupported grant type' });
-
     try {
         const authCode = jwt.verify(code, process.env.JWT_SECRET!) as authCode;
         

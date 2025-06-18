@@ -5,13 +5,13 @@ import GoogleButton from "./components/Button/GoogleButton";
 import SignInForm from "./components/SignInForm";
 import LineButton from "./components/Button/LineButton";
 import { useGoogleLogin } from "@react-oauth/google";
-import { useGoogleLogin as GoogleLogin } from "./function/auth";
+import { API_HOST, useGoogleLogin as GoogleLogin } from "./function/auth";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [client_id, setClientId] = useState(searchParams.get("client_id"));
   const [state, setState] = useState(searchParams.get("state"));
-  const [redirect_uri, setRedirectUri] = useState(searchParams.get("redirect_uri"));
+  const [redirect_uri, setRedirectUri] = useState(searchParams.get("redirect_uri") || API_HOST);
 
   useEffect(() => {
   })

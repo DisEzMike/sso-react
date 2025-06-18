@@ -44,13 +44,6 @@ export const authorize: RequestHandler = async (req, res) => {
                 const payload = {user_id: user!.id, client_id: data.client_id} as authCode;
                 jwt.sign(payload, process.env.JWT_SECRET!, {expiresIn: "1d"}, (error, token) => {
                     if (error) throw error;
-                    // res.cookie("sso_token", token, {
-                    //     domain: '.mikenatcavon.com',
-                    //     path: '/',
-                    //     httpOnly: true,
-                    //     secure: true,
-                    //     maxAge: 24 * 60 * 60 * 1000
-                    // })
                     res.json({redirect_url: `${data.redirect_uri}?code=${token}&state=${data.state}`});
                 });
             } catch (error) {

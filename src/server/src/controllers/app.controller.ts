@@ -11,5 +11,12 @@ export const getUser: any = (req: IRequest, res: Response) => {
         access_token,
         user
     }
+    res.cookie("sso_token", access_token, {
+        domain: '.mikenatcavon.com',
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        maxAge: 24 * 60 * 60 * 1000
+    })
     res.json(payload)
 }

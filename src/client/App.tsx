@@ -6,13 +6,13 @@ import SignInForm from "./components/SignInForm";
 import LineButton from "./components/Button/LineButton";
 import { useGoogleLogin } from "@react-oauth/google";
 import { getToken, useGoogleLogin as GoogleLogin } from "./function/auth";
-import { API_HOST, AUTH_URL } from "./utils/contant";
+import { HOST, AUTH_URL } from "./utils/contant";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [client_id, setClientId] = useState(searchParams.get("client_id"));
   const [state, setState] = useState(searchParams.get("state"));
-  const [redirect_uri, setRedirectUri] = useState(searchParams.get("redirect_uri") || API_HOST + '/signin');
+  const [redirect_uri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST + '/signin');
 
   useEffect(() => {
     onLoadwithCode();
@@ -22,8 +22,12 @@ function App() {
     const code = searchParams.get("code");
     if (!code) return;
     const res = await getToken(code);
-    const token = res.data;
-    console.log(token)    
+    const token = res.data; 
+
+  }
+
+  const loadUser = (token: string) => {
+
   }
 
 const login = useGoogleLogin({

@@ -1,6 +1,3 @@
-import { useGoogleLogin } from '@react-oauth/google';
-import { useGoogleLogin as GoogleLogin } from "../../function/auth";
-
 type GoogleButtonProp = {
   onClick: any;
   disabled?: boolean;

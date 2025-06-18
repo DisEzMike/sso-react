@@ -11,7 +11,6 @@ export const useGoogleLogin = async (data: any) => {
 
 export const getToken = async (code: string) => {
     return axios.post(AUTH_URL+"/token", {
-        type: "google",
         code,
         grant_type: 'authorization_code'
     });

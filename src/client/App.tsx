@@ -55,7 +55,7 @@ const login = useGoogleLogin({
         <div className="mt-5 separator font-semibold">Or</div>
         <div className="mt-5 flex flex-col gap-2">
           <GoogleButton onClick={() => {login()}} />
-          <LineButton />
+          <LineButton disabled />
         </div>
         </div>
       </div>

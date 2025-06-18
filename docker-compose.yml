@@ -2,7 +2,7 @@ services:
   auth-server:
     build: .
     env_file:
-      - ".env"
+      - "stack.env"
     ports:
       - "1443:${PORT}"
     volumes:

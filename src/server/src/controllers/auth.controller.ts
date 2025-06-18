@@ -1,9 +1,10 @@
 import { Request, RequestHandler, Response } from "express";
-import { authCode, googleProfile, loginType } from "../utils/type.js";
+import { authCode, googleProfile, loginType } from "../utils/type.ts";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
 import { IUser, User } from "../database/model/User.ts";
+import { getToken } from "../utils/auth.ts";
 
 export const authorize: RequestHandler = async (req, res) => {
 
@@ -66,19 +67,11 @@ export const authorize: RequestHandler = async (req, res) => {
 
 export const token: any = async (req: Request, res: Response) => {
     const { code, client_id, client_secret, redirect_uri, grant_type } = req.body;
+
+    if (grant_type !== 'authorization_code') return res.status(400).json({ error: 'Unsupported grant type' });
+
     try {
-        const authCode = jwt.verify(code, process.env.JWT_SECRET!) as authCode;
-        
-        const user = await User.findByIdAndUpdate(authCode.user_id);
-
-        const access_token = jwt.sign({user}, process.env.JWT_SECRET!, {expiresIn: "1d"});
-
-        const payload = {
-            access_token,
-            token_type: 'Bearer',
-            expires_in: 24 * 60 * 60,
-        }
-
+        const payload = await getToken(code);
         return res.json(payload);
     } catch (error) {
         console.error(error)

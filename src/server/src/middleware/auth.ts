@@ -16,9 +16,7 @@ export const authMiddleware:any = async (req: IRequest, res: Response, next: Nex
 
         const user = await User.findByIdAndUpdate<IUser>(payload.user._id, {new: true});
         req.user = user!;
-
-        console.log(user);
-        
+                
         next();
     } catch (err) {
         // err

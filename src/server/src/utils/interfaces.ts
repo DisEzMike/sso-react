@@ -12,7 +12,7 @@ interface ProtoLoginType {
 interface localLogin extends ProtoLoginType {
     type: 'local';
     data: ProtoLoginType['data'] & {
-        email: string;
+        username: string;
         password: string;
     }
 }

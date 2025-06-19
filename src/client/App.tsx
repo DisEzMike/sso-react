@@ -1,4 +1,4 @@
-import { FormEventHandler, useEffect, useState } from "react";
+import { FormEventHandler, useEffect, useLayoutEffect, useState } from "react";
 import "./App.css";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import GoogleButton from "./components/Button/GoogleButton";
@@ -19,15 +19,18 @@ function App() {
   const [scope, setScope] = useState(searchParams.get("scope") || HOST);
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
+
   useEffect(() => {
     onLoadwithCode();
-    if (scope && !scope.split(" ").includes("nosso")) onLoadwithSSO();
+    if (scope && scope.split(" ").length > 1 && !scope.split(" ").includes("nosso")) onLoadwithSSO();
+
+    // if (sessionStorage.getItem("token")) loadProfile();
   }, [])
 
   const onLoadwithSSO = async () => {
     const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
     const redirect_uri = !redirectUri ? HOST! : redirectUri;
-    if (sessionStorage.getItem('token') && redirect_uri == HOST) return;
+    if (sessionStorage.getItem("token") && redirect_uri == HOST) return;
     const data = {
       client_id,
       redirect_uri,
@@ -60,14 +63,18 @@ function App() {
     const res = await getToken(payload);
     const token = res.data; 
     sessionStorage.setItem("token", token.access_token);
+    localStorage.setItem("client_id", client_id);
+    localStorage.setItem("client_secret", client_secret);
     localStorage.setItem("refresh_token", token.refresh_token);
+    await loadProfile();
     navigate("/")
-    await loadProfile()
   }
 
   const loadProfile = async () => {
     const user = await getUser();
-    console.log(user);
+    if (user) localStorage.setItem('user_id', user.data.sub);
+    if (user) console.log(user)
+    navigate("/");
   }
 
 const SignInWithGoogle = useGoogleLogin({

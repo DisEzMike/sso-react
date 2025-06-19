@@ -4,7 +4,7 @@ import axios from "axios";
 import jwt from "jsonwebtoken";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
 import { IUser, User } from "../database/model/User.ts";
-import { getToken } from "../utils/auth.ts";
+import { createToken, getToken } from "../utils/auth.ts";
 import { AuthCode } from "../database/model/AuthCode.ts";
 import { generateCode } from "../utils/cryptoUtils.ts";
 import moment from "moment";
@@ -47,7 +47,7 @@ export const authorize: RequestHandler = async (req, res) => {
                 const authCode = new AuthCode({
                     code: generateCode(),
                     client_id: data.client_id,
-                    userId: user!._id,
+                    user_id: user!._id,
                     redirect_uri: data.redirect_uri,
                     expiresAt: moment().add(1, 'd')
                 })
@@ -72,8 +72,13 @@ export const token: any = async (req: Request, res: Response) => {
     if (grant_type !== 'authorization_code') return res.status(400).json({ error: 'Unsupported grant type' });
 
     try {
-        const payload = await getToken(code);
-        return res.json(payload);
+        const authCode = await AuthCode.findOneAndUpdate({code});
+        const user = await User.findByIdAndUpdate(authCode?.user_id, {new:true});
+        const access_token = createToken({user});
+        return res.json({
+            access_token,
+            token_type: 'Bearer',
+        })
     } catch (error) {
         console.error(error)
         return res.status(403).json({error: 403, message: "Token is expired"})

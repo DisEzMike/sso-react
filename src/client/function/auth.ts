@@ -10,6 +10,13 @@ export const useGoogleLogin = async (data: any) => {
     });
 }
 
+export const useLocalLogin = async (data: any) => {
+    return axios.post(AUTH_URL+"/login", {
+        type: "local",
+        data
+    });
+}
+
 export const getToken = async (arg: Token) => {
     return axios.post(AUTH_URL+"/token", {
         ...arg,

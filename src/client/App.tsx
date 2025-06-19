@@ -5,7 +5,7 @@ import GoogleButton from "./components/Button/GoogleButton";
 import SignInForm from "./components/SignInForm";
 import LineButton from "./components/Button/LineButton";
 import { useGoogleLogin } from "@react-oauth/google";
-import { getToken, useGoogleLogin as GoogleLogin, useLocalLogin } from "./function/auth";
+import { getToken, useGoogleLogin as GoogleLogin, useLocalLogin, useSSOLogin } from "./function/auth";
 import { HOST, LOCAL_CLIENT_ID, LOCAL_CLIENT_SECRET } from "./utils/contant";
 import { getUser } from "./function/user";
 import { Token } from "../server/src/utils/interfaces";
@@ -16,11 +16,33 @@ function App() {
   const [clientId, setClientId] = useState(searchParams.get("client_id"));
   const [state, setState] = useState(searchParams.get("state"));
   const [redirectUri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST);
+  const [scope, setScope] = useState(searchParams.get("scope") || HOST);
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
   useEffect(() => {
     onLoadwithCode();
+    if (scope && !scope.split(" ").includes("nosso")) onLoadwithSSO();
   }, [])
+
+  const onLoadwithSSO = async () => {
+    const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
+    const redirect_uri = !redirectUri ? HOST! : redirectUri;
+    if (sessionStorage.getItem('token') && redirect_uri == HOST) return;
+    const data = {
+      client_id,
+      redirect_uri,
+      state
+    }
+    try {
+      const response = await useSSOLogin(data);
+      console.log(response.data)
+      window.location.href = response.data.redirect_url;
+    } catch (error) {
+      console.log(error)
+    }
+
+
+  }
 
   const onLoadwithCode = async () => {
     const code = searchParams.get("code");

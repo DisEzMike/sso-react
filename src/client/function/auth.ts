@@ -22,3 +22,9 @@ export const getToken = async (arg: Token) => {
         ...arg,
     });
 }
+
+export const useSSOLogin = async (data: {client_id: string, redirect_uri: string}) => {
+    return axios.post(AUTH_URL, {
+        ...data
+    })
+}

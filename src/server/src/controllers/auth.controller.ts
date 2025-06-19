@@ -89,18 +89,17 @@ export const token: any = async (req: Request, res: Response) => {
         }
 
         const user = await User.findByIdAndUpdate(authCode?.user_id, {new:true});
-        const access_token = createToken({user});
+        const payload = {user}
+        const access_token = createToken({payload});
 
         const idTokenPayload = {
-            iss: HOST,
+            iss: HOST + "/oauth",
             sub: user!._id.toString(),
             aud: client_id,
-            email: user!.email,
-            iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+            email: user!.email
         };
         const idToken = createToken(idTokenPayload);
-
+        
         // Generate Refresh Token
         // const refreshTokenValue = randomBytes(40).toString('hex');
         // const refreshTokenExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -128,3 +127,17 @@ export const token: any = async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Unsupported grant type' });
     }
 }
+
+export const discovery = (req: Request, res: Response) => {
+  res.json({
+    issuer: HOST + '/oauth',
+    authorization_endpoint: `${HOST}`,
+    token_endpoint: `${HOST}/oauth/token`,
+    userinfo_endpoint: `${HOST}/api/me`,
+    response_types_supported: ['code'],
+    subject_types_supported: ['public'],
+    id_token_signing_alg_values_supported: ['HS256'],
+    scopes_supported: ['openid', 'profile', 'email'],
+    token_endpoint_auth_methods_supported: ['client_secret_post'],
+  });
+};

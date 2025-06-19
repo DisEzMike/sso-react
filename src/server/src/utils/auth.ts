@@ -18,7 +18,7 @@ export const getToken = async (code: string) => {
 
 export const createToken = (payload: any, expiresIn?: any) => {
 	if (!expiresIn) expiresIn = '1d';
-	return jwt.sign({ payload }, process.env.JWT_SECRET!, {
+	return jwt.sign(payload, process.env.JWT_SECRET!, {
 		expiresIn
 	});
 }

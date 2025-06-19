@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { authCode } from "./type.ts";
+import { authCode } from "./interfaces.ts";
 import { User } from '../database/model/User.ts';
 
 export const getToken = async (code: string) => {

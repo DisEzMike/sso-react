@@ -1,5 +1,5 @@
 import { Request, RequestHandler, Response } from "express";
-import { IRequest } from "../utils/type.ts";
+import { IRequest } from "../utils/interfaces.ts";
 import { generateClientCredentials } from "../utils/cryptoUtils.ts";
 import { Client } from "../database/model/Client.ts";
 

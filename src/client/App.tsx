@@ -5,10 +5,10 @@ import GoogleButton from "./components/Button/GoogleButton";
 import SignInForm from "./components/SignInForm";
 import LineButton from "./components/Button/LineButton";
 import { useGoogleLogin } from "@react-oauth/google";
-import { getToken, useGoogleLogin as GoogleLogin, useLocalLogin, useSSOLogin } from "./function/auth";
+import { getToken, useGoogleLogin as GoogleLogin, logout, useLocalLogin, useSSOLogin } from "./function/auth";
 import { HOST, LOCAL_CLIENT_ID, LOCAL_CLIENT_SECRET } from "./utils/contant";
 import { getUser } from "./function/user";
-import { Token } from "../server/src/utils/interfaces";
+import { RefreshToken, Token } from "../server/src/utils/interfaces";
 import { AxiosError } from "axios";
 
 function App() {
@@ -38,7 +38,6 @@ function App() {
     }
     try {
       const response = await useSSOLogin(data);
-      console.log(response.data)
       window.location.href = response.data.redirect_url;
     } catch (error) {
       console.log(error)
@@ -53,6 +52,27 @@ function App() {
     const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
     const client_secret = LOCAL_CLIENT_SECRET!
     const redirect_uri = !redirectUri ? HOST! : redirectUri;
+    if (code == "logout") {
+      const user_id = localStorage.getItem("user_id")!;
+      const refresh_token = localStorage.getItem("refresh_token")!
+
+      const payload: RefreshToken = {
+        grant_type: "refresh_token",
+        client_id,
+        client_secret,
+        user_id,
+        refresh_token
+      }
+      await logout(payload);
+
+      sessionStorage.removeItem("token");
+      localStorage.removeItem("user_id");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("client_id");
+      localStorage.removeItem("client_secret");
+      
+      return window.location.href = redirect_uri;
+    }
     const payload: Token = {
       grant_type: "authorization_code",
       code,
@@ -66,7 +86,7 @@ function App() {
     localStorage.setItem("client_id", client_id);
     localStorage.setItem("client_secret", client_secret);
     localStorage.setItem("refresh_token", token.refresh_token);
-    navigate("/me")
+    navigate("/me");
   }
 
   
@@ -83,7 +103,7 @@ const SignInWithGoogle = useGoogleLogin({
           redirect_uri
         };
         const response = await GoogleLogin(payload);
-        window.location.href = response.data.redirect_url;
+         window.location = response.data.redirect_url;
       } catch (error) {
         console.error(error)
       }
@@ -101,7 +121,7 @@ const SignInWithGoogle = useGoogleLogin({
           redirect_uri
         };
       const response = await useLocalLogin(payload);
-      window.location.href = response.data.redirect_url;
+      window.location = response.data.redirect_url;
     } catch (error) {
       console.error(error);
       const message = error instanceof AxiosError ? error.response!.data.message : (error as any).message;

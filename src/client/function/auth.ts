@@ -54,3 +54,9 @@ export const useSSOLogin = async (data: {client_id: string, redirect_uri: string
         ...data
     })
 }
+
+export const logout = async (arg: any) => {
+    return axios.post(AUTH_URL+"/logout", {
+        ...arg
+    });
+}

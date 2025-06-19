@@ -124,6 +124,7 @@ export const token: any = async (req: Request, res: Response) => {
         await createRefreshToken.save();
 
         await AuthCode.deleteOne({ code });
+        
         res.json({
             access_token,
             token_type: 'Bearer',
@@ -232,19 +233,44 @@ export const removeSSO: any = async (req: Request, res: Response) => {
 export const revokeToken: any = async (req: Request, res: Response) => {
 	let referer = req.headers['referer'];
 	if (!referer) referer = "/";
+
    try {
-        const { refresh_token, client_id, client_secret, user_id } = req.body;
-        const client = await Client.findOne({ client_id });
-        if (!client || client.client_secret !== client_secret) {
-            return res.status(401).send('Invalid client credentials');
+        const {body} = req.body
+        if (body) {
+            const {client_id, client_secret } = body;
+            const client = await Client.findOne({ client_id });
+            if (!client || client.client_secret !== client_secret) {
+                return res.status(401).send('Invalid client credentials');
+            }
         }
 
-        const savedToken = await RefreshToken.findOneAndUpdate({ token: refresh_token, user_id });
-            if (!savedToken || moment().isAfter(savedToken.expiresAt)) {
-            return res.status(400).send('Invalid or expired refresh token');
+        const cookieHeader = req.headers['cookie']
+        if (cookieHeader) {
+            const cookies = cookieHeader.split(";");
+            const cookie = cookies.map((item) => {
+                const cookie = item.split("=");
+                let data = {} as {key: string, value: string};
+                data.key = cookie[0];
+                data.value = cookie[1];
+                return data
+            });
+    
+            const mapped: { [key: string]: string } = cookie.reduce((acc, curr) => {
+                acc[curr.key] = curr.value;
+                return acc;
+            }, {} as { [key: string]: string });
+    
+            const user_id = mapped["user_id"];
+            const refresh_token = mapped["refresh_token"];
+    
+    
+            const savedToken = await RefreshToken.findOneAndUpdate({ token: refresh_token, user_id });
+                if (!savedToken || moment().isAfter(savedToken.expiresAt)) {
+                return res.status(400).send('Invalid or expired refresh token');
+            }
+    
+            await RefreshToken.deleteOne({ token: refresh_token });
         }
-
-        await RefreshToken.deleteOne({ token: refresh_token });
 
         res.status(200).json({status: 200, message: "logout has been successfully"})
 

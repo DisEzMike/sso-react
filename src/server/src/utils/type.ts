@@ -12,7 +12,7 @@ interface localLogin {
 
 interface googleLogin {
     type: "google";
-    data: Omit<TokenResponse, "error" | "error_description" | "error_uri">
+    data: Omit<TokenResponse, "error" | "error_description" | "error_uri"> & {client_id: string, redirect_uri: string, state: string}
 }
 
 interface lineLogin {

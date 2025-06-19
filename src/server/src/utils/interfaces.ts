@@ -59,6 +59,7 @@ export interface Token extends ProToTokenArg {
 export interface RefreshToken extends ProToTokenArg {
     grant_type: "refresh_token";
     refresh_token: string;
+    user_id: string;
 }
 
 export type TokenType = Token | RefreshToken;

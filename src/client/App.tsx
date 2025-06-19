@@ -60,6 +60,7 @@ function App() {
     const res = await getToken(payload);
     const token = res.data; 
     sessionStorage.setItem("token", token.access_token);
+    localStorage.setItem("refresh_token", token.refresh_token);
     navigate("/")
     await loadProfile()
   }

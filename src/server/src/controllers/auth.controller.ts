@@ -115,12 +115,13 @@ export const token: any = async (req: Request, res: Response) => {
         const refresh_token = randomBytes(40).toString('hex');
         const refreshTokenExpiry = moment().add(1, 'month');
 
-        await RefreshToken.create({
+        const createRefreshToken = new RefreshToken({
             token: refresh_token,
-            userId: user!._id,
-            clientId: client_id,
+            user_id: user!._id,
+            client_id: client_id,
             expiresAt: refreshTokenExpiry,
         });
+        await createRefreshToken.save();
 
         await AuthCode.deleteOne({ code });
         res.json({
@@ -135,14 +136,13 @@ export const token: any = async (req: Request, res: Response) => {
             return res.status(403).json({error: 403, message: "Token is expired"})
         }
     } else if (grant_type == 'refresh_token') {
-        const { refresh_token, client_id, client_secret } = req.body;
-
+        const { refresh_token, client_id, client_secret, user_id } = req.body;
         const client = await Client.findOne({ client_id });
         if (!client || client.client_secret !== client_secret) {
             return res.status(401).send('Invalid client credentials');
         }
 
-        const savedToken = await RefreshToken.findOneAndUpdate({ token: refresh_token, client_id });
+        const savedToken = await RefreshToken.findOneAndUpdate({ token: refresh_token, user_id });
             if (!savedToken || moment().isAfter(savedToken.expiresAt)) {
             return res.status(400).send('Invalid or expired refresh token');
         }
@@ -166,8 +166,8 @@ export const token: any = async (req: Request, res: Response) => {
 
         await RefreshToken.create({
             token: newRefreshTokenValue,
-            userId: user!._id,
-            clientId: client_id,
+            user_id: user!._id,
+            client_id: client_id,
             expiresAt: refreshTokenExpiry,
         });
 

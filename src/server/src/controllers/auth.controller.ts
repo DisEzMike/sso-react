@@ -8,14 +8,20 @@ import { createToken, getToken } from "../utils/auth.ts";
 import { AuthCode } from "../database/model/AuthCode.ts";
 import { generateCode } from "../utils/cryptoUtils.ts";
 import moment from "moment";
+import { Client } from "../database/model/Client.ts";
 
-export const authorize: RequestHandler = async (req, res) => {
+export const authorize: any = async (req: Request, res: Response) => {
 
     if (!req.body) res.status(403).json({status: 403, message: "body not provide."});
     else {
         const {body} = req;
     
         const {type, data} = body as loginType;
+
+        const client = await Client.findOne({ client_id: data.client_id });
+            if (!client || !client.redirectUris.includes(data.redirect_uri)) {
+            return res.status(400).send('Invalid client or redirect URI');
+        }
     
         if (type == "local") {
             res.status(404).json({status: 404, message: "Local login is not active"});

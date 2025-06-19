@@ -1,8 +1,9 @@
 import { Request, RequestHandler, Response } from "express";
 import { IRequest } from "../utils/type.ts";
 import { generateClientCredentials } from "../utils/cryptoUtils.ts";
+import { Client } from "../database/model/Clinet.ts";
 
-export const createClient: any = (req: IRequest, res: Response) => {
+export const createClient: any = async (req: IRequest, res: Response) => {
   try {
   const {redirectUris} = req.body;
   if (!redirectUris || !Array.isArray(redirectUris) || redirectUris.length === 0) {
@@ -11,11 +12,12 @@ export const createClient: any = (req: IRequest, res: Response) => {
   
   const { clientId, clientSecret } = generateClientCredentials();
   
-    const newClient = await Client.create({
+    const newClient = new Client({
       clientId,
       clientSecret,
       redirectUris,
     });
+    await newClient.save();
 
     res.json({
       clientId: clientId,

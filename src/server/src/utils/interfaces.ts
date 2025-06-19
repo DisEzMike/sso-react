@@ -44,3 +44,21 @@ export interface authCode {
 }
 
 export type IRequest = Request & {user: IUser}
+
+interface ProToTokenArg {
+    client_id: string;
+    client_secret: string;
+}
+
+interface Token extends ProToTokenArg {
+    grant_type: "authorization_code";
+    code: string;
+    redirect_uri: string;
+}
+
+interface RefreshToken extends ProToTokenArg {
+    grant_type: "refresh_token";
+    refresh_token: string;
+}
+
+export type TokenType = Token | RefreshToken;

@@ -8,10 +8,11 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import App from "./App";
 import NotFound from "./404";
+import { GOOGLE_CLIENT_ID } from "./utils/contant";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={process.env.clientID!}>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID!}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />

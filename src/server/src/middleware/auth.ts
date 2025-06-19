@@ -29,11 +29,10 @@ export const authMiddleware:any = async (req: IRequest, res: Response, next: Nex
 export const checkAdmin:any = async (req: IRequest, res: Response, next: NextFunction) => {
     try {
         //code
-        const token = req.headers["x-access-token"] as string
-
-        if (!token) {
-            return res.status(401).send('No token');
-        }
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) return res.status(401).send('Unauthorize');
+        
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
         const {payload} = decoded;
 

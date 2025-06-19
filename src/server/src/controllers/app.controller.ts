@@ -1,5 +1,5 @@
 import { Request, RequestHandler, Response } from "express";
-import { IRequest } from "../utils/type.ts";
+import { IRequest } from "../utils/interfaces.ts";
 import { createToken } from "../utils/auth.ts";
 
 export const getUser: any = (req: IRequest, res: Response) => {
@@ -7,6 +7,7 @@ export const getUser: any = (req: IRequest, res: Response) => {
     const access_token = createToken({user});
     const payload = {
         displayName: user.displayName,
+        sub: user._id.toString(),
         email: user.email,
         access_token,
         user

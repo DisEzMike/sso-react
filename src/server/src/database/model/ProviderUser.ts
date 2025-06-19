@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { User } from './User.ts';
-import { googleProfile } from '../../utils/type.ts';
+import { googleProfile } from '../../utils/interfaces.ts';
 
 export interface IProviderUser extends Document {
     userId: string,

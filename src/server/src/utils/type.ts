@@ -6,7 +6,7 @@ interface ProtoLoginType {
     data: {
         client_id: string;
         redirect_uri: string;
-        state: string;
+        state: string | null;
     }
 }
 interface localLogin extends ProtoLoginType {

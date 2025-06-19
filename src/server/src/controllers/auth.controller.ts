@@ -9,6 +9,7 @@ import { AuthCode } from "../database/model/AuthCode.ts";
 import { generateCode } from "../utils/cryptoUtils.ts";
 import moment from "moment";
 import { Client } from "../database/model/Client.ts";
+import { HOST } from "../utils/contant.ts";
 
 export const authorize: any = async (req: Request, res: Response) => {
 
@@ -72,20 +73,58 @@ export const authorize: any = async (req: Request, res: Response) => {
 }
 
 export const token: any = async (req: Request, res: Response) => {
-    const { code, client_id, client_secret, redirect_uri, grant_type } = req.body;
+    const { grant_type } = req.body;
+    if (grant_type == 'authorization_code') {
+        try {
+        const { code, client_id, client_secret, redirect_uri } = req.body;
+        
+        const client = await Client.findOne({ client_id: client_id });
+        if (!client || client.client_secret !== client_secret) {
+            return res.status(401).send('Invalid client credentials');
+        }
+        
+        const authCode = await AuthCode.findOne({ code, client_id: client_id, redirect_uri: redirect_uri });
+        if (!authCode || moment(authCode.expiresAt).isAfter(moment())) {
+            return res.status(400).send('Invalid or expired authorization code');
+        }
 
-    if (grant_type !== 'authorization_code') return res.status(400).json({ error: 'Unsupported grant type' });
-
-    try {
-        const authCode = await AuthCode.findOneAndUpdate({code});
         const user = await User.findByIdAndUpdate(authCode?.user_id, {new:true});
         const access_token = createToken({user});
-        return res.json({
+
+        const idTokenPayload = {
+            iss: HOST,
+            sub: user!._id.toString(),
+            aud: client_id,
+            email: user!.email,
+            iat: Math.floor(Date.now() / 1000),
+            exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+        };
+        const idToken = createToken(idTokenPayload);
+
+        // Generate Refresh Token
+        // const refreshTokenValue = randomBytes(40).toString('hex');
+        // const refreshTokenExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+        // await RefreshToken.create({
+        //     token: refreshTokenValue,
+        //     userId: user._id,
+        //     clientId: client_id,
+        //     expiresAt: refreshTokenExpiry,
+        // });
+
+        await AuthCode.deleteOne({ code });
+        res.json({
             access_token,
             token_type: 'Bearer',
-        })
-    } catch (error) {
-        console.error(error)
-        return res.status(403).json({error: 403, message: "Token is expired"})
+            expires_in: 24 * 60 * 60,
+            id_token: idToken,
+            // refresh_token: refreshTokenValue,
+        });
+        } catch (error) {
+            console.error(error)
+            return res.status(403).json({error: 403, message: "Token is expired"})
+        }
+    } else {
+        return res.status(400).json({ error: 'Unsupported grant type' });
     }
 }

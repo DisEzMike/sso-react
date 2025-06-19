@@ -91,7 +91,7 @@ const SignInWithGoogle = useGoogleLogin({
       <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight">
         Sign in to Natchapon App
       </h2>
-      <div className="mt-5 mx-auto p-5 isolate aspect-video w-96 rounded-xl bg-white/20 shadow-lg ring-1 ring-black/5">
+      <div className="mt-5 mx-auto p-5 isolate aspect-video w-96 rounded-xl bg-white dark:bg-white/20 shadow-lg ring-1 ring-black/5">
         {errorMsg &&
         <div className="flex items-center p-4 mb-4 text-red-800 rounded-lg bg-red-50 dark:bg-stone-900 dark:text-red-400 transition-all ease-in duration-75" role="alert">
           <svg className="shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">

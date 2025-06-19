@@ -10,6 +10,8 @@ import { generateCode } from "../utils/cryptoUtils.ts";
 import moment from "moment";
 import { Client } from "../database/model/Client.ts";
 import { HOST } from "../utils/contant.ts";
+import { randomBytes } from "crypto";
+import { RefreshToken } from "../database/model/RefreshToken.ts";
 
 export const authorize: any = async (req: Request, res: Response) => {
 
@@ -101,15 +103,15 @@ export const token: any = async (req: Request, res: Response) => {
         const idToken = createToken(idTokenPayload);
         
         // Generate Refresh Token
-        // const refreshTokenValue = randomBytes(40).toString('hex');
-        // const refreshTokenExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        const refresh_token = randomBytes(40).toString('hex');
+        const refreshTokenExpiry = moment().add(1, 'month');
 
-        // await RefreshToken.create({
-        //     token: refreshTokenValue,
-        //     userId: user._id,
-        //     clientId: client_id,
-        //     expiresAt: refreshTokenExpiry,
-        // });
+        await RefreshToken.create({
+            token: refresh_token,
+            userId: user!._id,
+            clientId: client_id,
+            expiresAt: refreshTokenExpiry,
+        });
 
         await AuthCode.deleteOne({ code });
         res.json({
@@ -117,12 +119,56 @@ export const token: any = async (req: Request, res: Response) => {
             token_type: 'Bearer',
             expires_in: 24 * 60 * 60,
             id_token: idToken,
-            // refresh_token: refreshTokenValue,
+            refresh_token,
         });
         } catch (error) {
             console.error(error)
             return res.status(403).json({error: 403, message: "Token is expired"})
         }
+    } else if (grant_type == 'refresh_token') {
+        const { refresh_token, client_id, client_secret } = req.body;
+
+        const client = await Client.findOne({ client_id });
+        if (!client || client.client_secret !== client_secret) {
+            return res.status(401).send('Invalid client credentials');
+        }
+
+        const savedToken = await RefreshToken.findOneAndUpdate({ token: refresh_token, client_id });
+            if (!savedToken || moment().isAfter(savedToken.expiresAt)) {
+            return res.status(400).send('Invalid or expired refresh token');
+        }
+
+        const user = await User.findByIdAndUpdate(savedToken.user_id, {new: true});
+        const payload = {user}
+        const access_token = createToken({payload});
+
+        const idTokenPayload = {
+            iss: HOST + "/oauth",
+            sub: user!._id.toString(),
+            aud: client_id,
+            email: user!.email
+        };
+        const idToken = createToken(idTokenPayload);
+
+        await RefreshToken.deleteOne({ token: refresh_token });
+
+        const newRefreshTokenValue = randomBytes(40).toString('hex');
+        const refreshTokenExpiry = moment().add(1, 'month');
+
+        await RefreshToken.create({
+            token: newRefreshTokenValue,
+            userId: user!._id,
+            clientId: client_id,
+            expiresAt: refreshTokenExpiry,
+        });
+
+        res.json({
+            access_token,
+            token_type: 'Bearer',
+            expires_in: 3600,
+            id_token: idToken,
+            refresh_token: newRefreshTokenValue,
+        });
     } else {
         return res.status(400).json({ error: 'Unsupported grant type' });
     }

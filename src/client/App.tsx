@@ -33,9 +33,6 @@ function App() {
       client_secret,
       redirect_uri
     }
-
-    console.log(payload)
-
     const res = await getToken(payload);
     const token = res.data; 
     sessionStorage.setItem("token", token.access_token);

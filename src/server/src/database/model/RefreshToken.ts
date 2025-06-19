@@ -14,4 +14,4 @@ const refreshTokenSchema = new mongoose.Schema<IRefreshToken>({
   expiresAt: Date,
 });
 
-export const RefreshToken = mongoose.model<IRefreshToken>('RefreshToken', refreshTokenSchema);
+export const RefreshToken = mongoose.model<IRefreshToken>('refreshtokens', refreshTokenSchema);

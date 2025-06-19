@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 
 export interface IUser extends Document {
     _id: string;
-    email: string
+    username: string;
+    password: string;
+    email: string;
     displayName: string;
     pictureUrl: string;
     role: 0 | 1
@@ -11,6 +13,8 @@ export interface IUser extends Document {
 }
 
 export const userSchema = new mongoose.Schema<IUser>({
+    username: String,
+    password: String,
     email: String,
     displayName: String,
     pictureUrl: String,

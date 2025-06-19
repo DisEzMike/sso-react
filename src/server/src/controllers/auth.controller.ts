@@ -1,5 +1,5 @@
 import { Request, RequestHandler, Response } from "express";
-import { authCode, googleProfile, loginType } from "../utils/type.ts";
+import { authCode, googleProfile, loginType } from "../utils/interfaces.ts";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
@@ -78,13 +78,13 @@ export const token: any = async (req: Request, res: Response) => {
         try {
         const { code, client_id, client_secret, redirect_uri } = req.body;
         
-        const client = await Client.findOne({ client_id: client_id });
+        const client = await Client.findOne({ client_id });
         if (!client || client.client_secret !== client_secret) {
             return res.status(401).send('Invalid client credentials');
         }
         
-        const authCode = await AuthCode.findOne({ code, client_id: client_id, redirect_uri: redirect_uri });
-        if (!authCode || moment(authCode.expiresAt).isAfter(moment())) {
+        const authCode = await AuthCode.findOne({ code, client_id, redirect_uri });
+        if (!authCode || moment().isAfter(authCode.expiresAt)) {
             return res.status(400).send('Invalid or expired authorization code');
         }
 

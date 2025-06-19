@@ -1,6 +1,6 @@
 import { FormEventHandler, useEffect, useState } from "react";
 import "./App.css";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import GoogleButton from "./components/Button/GoogleButton";
 import SignInForm from "./components/SignInForm";
 import LineButton from "./components/Button/LineButton";
@@ -15,7 +15,7 @@ function App() {
   const [clientId, setClientId] = useState(searchParams.get("client_id"));
   const [state, setState] = useState(searchParams.get("state"));
   const [redirectUri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST);
-
+  const navigate = useNavigate();
   useEffect(() => {
     onLoadwithCode();
   }, [])
@@ -36,6 +36,7 @@ function App() {
     const res = await getToken(payload);
     const token = res.data; 
     sessionStorage.setItem("token", token.access_token);
+    navigate("/")
     await loadProfile()
   }
 

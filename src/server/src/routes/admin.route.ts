@@ -9,6 +9,6 @@ router.get('/', (req, res) => {
     res.json({ text: 'Hello, world!' });
 });
 
-router.get("/createClient", checkAdmin, createClient);
+router.patch("/createClient", checkAdmin, createClient);
 
 export { router };

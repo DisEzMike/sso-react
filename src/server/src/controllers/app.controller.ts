@@ -7,6 +7,7 @@ export const getUser: any = (req: IRequest, res: Response) => {
     const access_token = createToken({user});
     const payload = {
         displayName: user.displayName,
+        sub: user._id.toString(),
         email: user.email,
         access_token,
         user

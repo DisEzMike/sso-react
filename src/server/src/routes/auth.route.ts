@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authorize, token, discovery, register } from '../controllers/auth.controller.ts';
+import { authorize, token, discovery, register, removeSSO, revokeToken } from '../controllers/auth.controller.ts';
 import { ssoAuth } from '../middleware/auth.ts';
 
 
@@ -13,7 +13,9 @@ router.post('/', ssoAuth);
 
 router.post("/login", authorize);
 router.post("/register", register);
-router.post("/token", token);
+router.post("/token", token)
+router.get("/logout", removeSSO);
+router.post("/logout", revokeToken);
 
 router.get('/.well-known/openid-configuration', discovery);
 

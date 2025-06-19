@@ -189,6 +189,7 @@ export const discovery = (req: Request, res: Response) => {
     authorization_endpoint: `${HOST}`,
     token_endpoint: `${HOST}/oauth/token`,
     userinfo_endpoint: `${HOST}/api/me`,
+    end_session_endpoint:`${HOST}/oauth/logout`,
     response_types_supported: ['code'],
     subject_types_supported: ['public'],
     id_token_signing_alg_values_supported: ['HS256'],
@@ -216,4 +217,37 @@ export const register: any = async (req: Request, res: Response) => {
         const message = error instanceof Error ? error.message : "Unable to register";
         return res.status(500).json({status: 500, message});
     }
+}
+
+export const removeSSO: any = async (req: Request, res: Response) => {
+	let referer = req.headers['referer'];
+	if (!referer) referer = "/";
+
+	res.clearCookie("sso_token", {
+		domain: ".mikenatcavon.com",
+	});
+	res.send(`<script>window.location = '${referer}'</script>`)
+}
+
+export const revokeToken: any = async (req: Request, res: Response) => {
+	let referer = req.headers['referer'];
+	if (!referer) referer = "/";
+   try {
+        const { refresh_token, client_id, client_secret, user_id } = req.body;
+        const client = await Client.findOne({ client_id });
+        if (!client || client.client_secret !== client_secret) {
+            return res.status(401).send('Invalid client credentials');
+        }
+
+        const savedToken = await RefreshToken.findOneAndUpdate({ token: refresh_token, user_id });
+            if (!savedToken || moment().isAfter(savedToken.expiresAt)) {
+            return res.status(400).send('Invalid or expired refresh token');
+        }
+
+        await RefreshToken.deleteOne({ token: refresh_token });
+
+    } catch (error) {
+        console.error(error);
+    }
+    res.send(`<script>window.location = '${referer}'</script>`)
 }

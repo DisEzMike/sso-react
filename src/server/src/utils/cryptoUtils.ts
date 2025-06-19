@@ -5,3 +5,7 @@ export function generateClientCredentials() {
   const client_secret = randomBytes(32).toString('hex');
   return { client_id, client_secret };
 }
+
+export function generateCode() {
+  return randomBytes(16).toString('hex');
+}

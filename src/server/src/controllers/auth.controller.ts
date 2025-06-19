@@ -79,29 +79,3 @@ export const token: any = async (req: Request, res: Response) => {
         return res.status(403).json({error: 403, message: "Token is expired"})
     }
 }
-
-export const me: any = async (req: Request, res: Response) => {
-  res.setHeader('Content-Type', 'application/json');
-
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-
-  // Assuming you have JWT verification
-  jwt.verify(token!, 'tIsEfhpwQv4mAbqHtwnAyP8wKubzRPFr', (err, data) => {
-    if (err) {
-      return res.status(403).json({ error: 'Invalid token' });
-    }
-
-    const user = (data as any).user as IUser
-
-
-    const response = {
-      displayName: user.displayName, // Must exist
-      email: user.email,
-      role: user.role // Or 2 for regular users
-    };
-
-    res.json(response);
-  });
-}

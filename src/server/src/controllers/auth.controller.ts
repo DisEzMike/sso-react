@@ -5,6 +5,9 @@ import jwt from "jsonwebtoken";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
 import { IUser, User } from "../database/model/User.ts";
 import { getToken } from "../utils/auth.ts";
+import { AuthCode } from "../database/model/AuthCode.ts";
+import { generateCode } from "../utils/cryptoUtils.ts";
+import moment from "moment";
 
 export const authorize: RequestHandler = async (req, res) => {
 
@@ -25,27 +28,32 @@ export const authorize: RequestHandler = async (req, res) => {
                         Authorization: `Bearer ${tokenResponse.access_token}`
                     }
                 });
-                const autoData = {type, data: response.data as googleProfile};
-                const providerUser = await ProviderUser.findOneAndUpdate({providerId: autoData.data.id});
+                const authData = {type, data: response.data as googleProfile};
+                const providerUser = await ProviderUser.findOneAndUpdate({providerId: authData.data.id});
                 let user;
                 if (providerUser) {
                     user = await User.findByIdAndUpdate(providerUser.userId, {new: true}); 
                 } else {
                     const new_providerUser = new ProviderUser({
-                        type: autoData.type,
-                        providerId: autoData.data.id,
-                        data: autoData.data
+                        type: authData.type,
+                        providerId: authData.data.id,
+                        data: authData.data
                     })
                     await new_providerUser.save();
 
                     user = await User.findByIdAndUpdate(new_providerUser.userId, {new: true}); 
                 }
 
-                const payload = {user_id: user!.id, client_id: data.client_id} as authCode;
-                jwt.sign(payload, process.env.JWT_SECRET!, {expiresIn: "1d"}, (error, token) => {
-                    if (error) throw error;
-                    res.json({redirect_url: `${data.redirect_uri}?code=${token}&state=${data.state}`});
-                });
+                const authCode = new AuthCode({
+                    code: generateCode(),
+                    client_id: data.client_id,
+                    userId: user!._id,
+                    redirect_uri: data.redirect_uri,
+                    expiresAt: moment().add(1, 'd')
+                })
+                authCode.save();
+
+                res.json({redirect_url: `${data.redirect_uri}?code=${authCode.code}&state=${data.state}`});
             } catch (error) {
                 console.log(error);
             }

@@ -9,6 +9,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import App from "./App";
 import NotFound from "./404";
 import { GOOGLE_CLIENT_ID } from "./utils/contant";
+import UserProfile from "./pages/profile";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/me" element={<UserProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

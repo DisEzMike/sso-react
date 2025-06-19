@@ -66,16 +66,10 @@ function App() {
     localStorage.setItem("client_id", client_id);
     localStorage.setItem("client_secret", client_secret);
     localStorage.setItem("refresh_token", token.refresh_token);
-    await loadProfile();
-    navigate("/")
+    navigate("/me")
   }
 
-  const loadProfile = async () => {
-    const user = await getUser();
-    if (user) localStorage.setItem('user_id', user.data.sub);
-    if (user) console.log(user)
-    navigate("/");
-  }
+  
 
 const SignInWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {

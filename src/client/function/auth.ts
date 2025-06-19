@@ -40,12 +40,10 @@ export const refreshToken = async (cb: any) => {
        const response = await axios.post(AUTH_URL+"/token", {...arg}); 
        const data = response.data
 
-       localStorage.setItem('token', data.access_token);
+       sessionStorage.setItem('token', data.access_token);
        localStorage.setItem('refresh_token', data.refresh_token);
-        console.log("refresh token!")
-       cb();
-
-       console.log(response);
+       console.log("refresh_token update")
+       return cb();
     } catch (error) {
         console.error(error)
     }

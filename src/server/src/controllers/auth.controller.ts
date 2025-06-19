@@ -27,7 +27,7 @@ export const authorize: any = async (req: Request, res: Response) => {
     
         if (type == "local") {
             const {username, password} = data;
-            const user = await User.findOneAndUpdate({$or: [{username, email: username}]}, {new:true});
+            const user = await User.findOneAndUpdate({$or: [{username}, {email: username}]}, {new:true});
             if (!user) return res.status(401).json({status: 401, message: "user not found"});
 
             const validPassword = await bcrypt.compare(password, user.password);

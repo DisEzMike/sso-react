@@ -226,7 +226,7 @@ export const removeSSO: any = async (req: Request, res: Response) => {
 	res.clearCookie("sso_token", {
 		domain: ".mikenatcavon.com",
 	});
-	res.send(`<script>window.location = '${referer}'</script>`)
+	res.send(`<script>window.location = '/?code=logout&redirect_uri=${referer}'</script>`)
 }
 
 export const revokeToken: any = async (req: Request, res: Response) => {

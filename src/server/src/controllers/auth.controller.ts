@@ -15,29 +15,28 @@ export const authorize: RequestHandler = async (req, res) => {
     else {
         const {body} = req;
     
-        const {type, data} = body as any;
+        const {type, data} = body as loginType;
     
         if (type == "local") {
             res.status(404).json({status: 404, message: "Local login is not active"});
         } else if (type == "google") {
-            try {
-                const tokenResponse = data;
-    
+            try {    
                 const response = await axios.get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json", {
                     headers: {
-                        Authorization: `Bearer ${tokenResponse.access_token}`
+                        Authorization: `Bearer ${data.access_token}`
                     }
                 });
-                const authData = {type, data: response.data as googleProfile};
-                const providerUser = await ProviderUser.findOneAndUpdate({providerId: authData.data.id});
+                const profile = response.data as googleProfile
+                const authData = {type, profile};
+                const providerUser = await ProviderUser.findOneAndUpdate({providerId: authData.profile.id});
                 let user;
                 if (providerUser) {
                     user = await User.findByIdAndUpdate(providerUser.userId, {new: true}); 
                 } else {
                     const new_providerUser = new ProviderUser({
                         type: authData.type,
-                        providerId: authData.data.id,
-                        data: authData.data
+                        providerId: authData.profile.id,
+                        data: authData.profile
                     })
                     await new_providerUser.save();
 

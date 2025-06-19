@@ -1,7 +1,6 @@
 import { Request, RequestHandler, Response } from "express";
 import { authCode, googleProfile, loginType } from "../utils/interfaces.ts";
 import axios from "axios";
-import jwt from "jsonwebtoken";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
 import { IUser, User } from "../database/model/User.ts";
 import { createToken, getToken } from "../utils/auth.ts";
@@ -12,7 +11,7 @@ import { Client } from "../database/model/Client.ts";
 import { HOST } from "../utils/contant.ts";
 import { randomBytes } from "crypto";
 import { RefreshToken } from "../database/model/RefreshToken.ts";
-
+import bcrypt from 'bcrypt';
 export const authorize: any = async (req: Request, res: Response) => {
 
     if (!req.body) res.status(403).json({status: 403, message: "body not provide."});
@@ -187,3 +186,24 @@ export const discovery = (req: Request, res: Response) => {
     token_endpoint_auth_methods_supported: ['client_secret_post'],
   });
 };
+
+export const register: any = async (req: Request, res: Response) => {
+    try {
+        const {username, password, email} = req.body;
+        const salt = bcrypt.genSaltSync(10);
+        const hashPassword = bcrypt.hashSync(password, salt);
+
+        const newUser = new User({
+            username, 
+            displayName: username, 
+            password: hashPassword, 
+            email: email
+        });
+        await newUser.save();
+
+        return res.status(201).json({ status: 201, message: "user created!" });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "Unable to register";
+        return res.status(500).json({status: 500, message});
+    }
+}

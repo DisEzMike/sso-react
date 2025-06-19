@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 
 export function generateClientCredentials() {
-  const clientId = randomBytes(16).toString('hex');
-  const clientSecret = randomBytes(32).toString('hex');
-  return { clientId, clientSecret };
+  const client_id = randomBytes(16).toString('hex');
+  const client_secret = randomBytes(32).toString('hex');
+  return { client_id, client_secret };
 }

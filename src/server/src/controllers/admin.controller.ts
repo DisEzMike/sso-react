@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
 import { IRequest } from "../utils/type.ts";
 import { generateClientCredentials } from "../utils/cryptoUtils.ts";
-import { Client } from "../database/model/Clinet.ts";
+import { Client } from "../database/model/Client.ts";
 
 export const createClient: any = async (req: IRequest, res: Response) => {
   try {
@@ -10,19 +10,19 @@ export const createClient: any = async (req: IRequest, res: Response) => {
     return res.status(400).json({ error: 'redirectUris (array) is required' });
   }
   
-  const { clientId, clientSecret } = generateClientCredentials();
+  const { client_id, client_secret } = generateClientCredentials();
   
     const newClient = new Client({
-      clientId,
-      clientSecret,
+      client_id,
+      client_secret,
       redirectUris,
     });
     await newClient.save();
 
     res.json({
-      clientId: clientId,
-      clientSecret: clientSecret,
-      redirectUris: redirectUris,
+      client_id,
+      client_secret,
+      redirectUris,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to create client';

@@ -6,14 +6,15 @@ import SignInForm from "./components/SignInForm";
 import LineButton from "./components/Button/LineButton";
 import { useGoogleLogin } from "@react-oauth/google";
 import { getToken, useGoogleLogin as GoogleLogin } from "./function/auth";
-import { HOST, LOCAL_CLIENT_ID } from "./utils/contant";
+import { HOST, LOCAL_CLIENT_ID, LOCAL_CLIENT_SECRET } from "./utils/contant";
 import { getUser } from "./function/user";
+import { Token } from "../server/src/utils/interfaces";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [clientId, setClientId] = useState(searchParams.get("client_id"));
   const [state, setState] = useState(searchParams.get("state"));
-  const [redirect_uri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST);
+  const [redirectUri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST);
 
   useEffect(() => {
     onLoadwithCode();
@@ -22,7 +23,20 @@ function App() {
   const onLoadwithCode = async () => {
     const code = searchParams.get("code");
     if (!code) return;
-    const res = await getToken(code);
+    const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
+    const client_secret = LOCAL_CLIENT_SECRET!
+    const redirect_uri = !redirectUri ? HOST! : redirectUri;
+    const payload: Token = {
+      grant_type: "authorization_code",
+      code,
+      client_id,
+      client_secret,
+      redirect_uri
+    }
+
+    console.log(payload)
+
+    const res = await getToken(payload);
     const token = res.data; 
     sessionStorage.setItem("token", token.access_token);
     await loadProfile()
@@ -37,7 +51,14 @@ const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
-        const response = await GoogleLogin({...tokenResponse, client_id, state, redirect_uri});
+        const redirect_uri = redirectUri!;
+        const payload = {
+          ...tokenResponse,
+          client_id, 
+          state, 
+          redirect_uri
+        };
+        const response = await GoogleLogin(payload);
         window.location.href = response.data.redirect_url;
       } catch (error) {
         console.error(error)

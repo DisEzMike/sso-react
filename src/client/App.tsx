@@ -6,7 +6,7 @@ import SignInForm from "./components/SignInForm";
 import LineButton from "./components/Button/LineButton";
 import { useGoogleLogin } from "@react-oauth/google";
 import { getToken, useGoogleLogin as GoogleLogin } from "./function/auth";
-import { HOST, AUTH_URL, GOOGLE_CLIENT_ID } from "./utils/contant";
+import { HOST, LOCAL_CLIENT_ID } from "./utils/contant";
 import { getUser } from "./function/user";
 
 function App() {
@@ -36,7 +36,7 @@ function App() {
 const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const client_id = !clientId ? GOOGLE_CLIENT_ID! : clientId;
+        const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
         const response = await GoogleLogin({...tokenResponse, client_id, state, redirect_uri});
         window.location.href = response.data.redirect_url;
       } catch (error) {

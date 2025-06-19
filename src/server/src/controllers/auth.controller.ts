@@ -3,7 +3,7 @@ import { authCode, googleProfile, loginType } from "../utils/interfaces.ts";
 import axios from "axios";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
 import { IUser, User } from "../database/model/User.ts";
-import { createToken, getToken } from "../utils/auth.ts";
+import { createToken, getAuthCode, getToken } from "../utils/auth.ts";
 import { AuthCode } from "../database/model/AuthCode.ts";
 import { generateCode } from "../utils/cryptoUtils.ts";
 import moment from "moment";
@@ -26,7 +26,20 @@ export const authorize: any = async (req: Request, res: Response) => {
         }
     
         if (type == "local") {
-            res.status(404).json({status: 404, message: "Local login is not active"});
+            const {username, password} = data;
+            const user = await User.findOneAndUpdate({username}, {new:true});
+            if (!user) return res.status(401).json({status: 401, message: "user not found"});
+
+            const validPassword = await bcrypt.compare(password, user.password);
+            if (!validPassword) return res.status(401).json({status: 401, message: "password not match"});
+
+            const authCode = await getAuthCode({
+                client_id: data.client_id,
+                user_id: user!._id,
+                redirect_uri: data.redirect_uri,
+            })
+
+            res.json({redirect_url: `${data.redirect_uri}?code=${authCode.code}&state=${data.state}`});
         } else if (type == "google") {
             try {    
                 const response = await axios.get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json", {
@@ -51,14 +64,11 @@ export const authorize: any = async (req: Request, res: Response) => {
                     user = await User.findByIdAndUpdate(new_providerUser.userId, {new: true}); 
                 }
 
-                const authCode = new AuthCode({
-                    code: generateCode(),
+                const authCode = await getAuthCode({
                     client_id: data.client_id,
                     user_id: user!._id,
                     redirect_uri: data.redirect_uri,
-                    expiresAt: moment().add(1, 'd')
                 })
-                authCode.save();
 
                 res.json({redirect_url: `${data.redirect_uri}?code=${authCode.code}&state=${data.state}`});
             } catch (error) {

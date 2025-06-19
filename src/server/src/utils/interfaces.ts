@@ -50,13 +50,13 @@ interface ProToTokenArg {
     client_secret: string;
 }
 
-interface Token extends ProToTokenArg {
+export interface Token extends ProToTokenArg {
     grant_type: "authorization_code";
     code: string;
     redirect_uri: string;
 }
 
-interface RefreshToken extends ProToTokenArg {
+export interface RefreshToken extends ProToTokenArg {
     grant_type: "refresh_token";
     refresh_token: string;
 }

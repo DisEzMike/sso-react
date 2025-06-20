@@ -3,7 +3,7 @@ import { authCode, googleProfile, loginType } from "../utils/interfaces.ts";
 import axios from "axios";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
 import { IUser, User } from "../database/model/User.ts";
-import { createToken, getAuthCode, getToken } from "../utils/auth.ts";
+import { createToken, getAuthCode, verifyToken } from "../utils/auth.ts";
 import { AuthCode } from "../database/model/AuthCode.ts";
 import { generateCode } from "../utils/cryptoUtils.ts";
 import moment from "moment";
@@ -221,61 +221,29 @@ export const register: any = async (req: Request, res: Response) => {
 }
 
 export const removeSSO: any = async (req: Request, res: Response) => {
+    const {id_token_hint, post_logout_redirect_uri} = req.query;
 	let referer = req.headers['referer'];
 	if (!referer) referer = "/";
 
 	res.clearCookie("sso_token", {
 		domain: ".mikenatcavon.com",
 	});
-	res.send(`<script>window.location.href = '/?code=logout&redirect_uri=${referer}'</script>`)
+    
+    if (id_token_hint) {
+        const payload = verifyToken(id_token_hint as string) as any;
+        console.log(payload)
+        await RefreshToken.deleteMany({ user_id: payload.sub });
+    }
+    res.redirect(`/?code=logout&redirect_uri=${referer}`);
 }
 
 export const revokeToken: any = async (req: Request, res: Response) => {
 	let referer = req.headers['referer'];
 	if (!referer) referer = "/";
-
    try {
-        const {body} = req.body
-        if (body) {
-            const {client_id, client_secret } = body;
-            const client = await Client.findOne({ client_id });
-            if (!client || client.client_secret !== client_secret) {
-                return res.status(401).send('Invalid client credentials');
-            }
-        }
-
-        const cookieHeader = req.headers['cookie']
-        if (cookieHeader) {
-            const cookies = cookieHeader.split(";");
-            const cookie = cookies.map((item) => {
-                const cookie = item.split("=");
-                let data = {} as {key: string, value: string};
-                data.key = cookie[0];
-                data.value = cookie[1];
-                return data
-            });
-    
-            const mapped: { [key: string]: string } = cookie.reduce((acc, curr) => {
-                acc[curr.key] = curr.value;
-                return acc;
-            }, {} as { [key: string]: string });
-    
-            const user_id = mapped["user_id"];
-            const refresh_token = mapped["refresh_token"];
-    
-    
-            const savedToken = await RefreshToken.findOneAndUpdate({ token: refresh_token, user_id });
-                if (!savedToken || moment().isAfter(savedToken.expiresAt)) {
-                return res.status(400).send('Invalid or expired refresh token');
-            }
-    
-            await RefreshToken.deleteOne({ token: refresh_token });
-        }
-
-        res.status(200).json({status: 200, message: "logout has been successfully"})
+        return res.send(`<script>window.location = '${referer}'</script>`)
 
     } catch (error) {
         console.error(error);
     }
-    res.send(`<script>window.location = '${referer}'</script>`)
 }

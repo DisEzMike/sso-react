@@ -13,6 +13,7 @@ import { randomBytes } from "crypto";
 import { RefreshToken } from "../database/model/RefreshToken.ts";
 import bcrypt from 'bcrypt';
 import { signToken, verifyToken } from "../utils/jwt.ts";
+
 export const authorize: any = async (req: Request, res: Response) => {
 
     if (!req.body) res.status(403).json({status: 403, message: "body not provide."});

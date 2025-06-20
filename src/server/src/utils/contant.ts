@@ -9,3 +9,5 @@ export const DB_DATABASE = process.env.DB_DATABASE
 export const DB_URL = `mongodb://${DB_HOST}:${DB_PORT}/${DB_DATABASE}`
 
 export const HOST = process.env.NODE_ENV == "production" ? process.env.PROD_HOST : process.env.DEV_HOST;
+
+export const JWT_SECRET = process.env.JWT_SECRET!;

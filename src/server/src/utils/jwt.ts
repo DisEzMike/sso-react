@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from './contant.ts';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-
-export const signToken = (payload: object, expiresIn?: any) => {
+export const signToken = (payload: any, expiresIn?: any) => {
     if (!expiresIn) expiresIn = '1d';
     return jwt.sign(payload, JWT_SECRET, {expiresIn});
 };

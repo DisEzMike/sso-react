@@ -53,8 +53,8 @@ function App() {
     if (code == "logout") {
       if (localStorage.getItem("token")) {
         const token = JSON.parse(localStorage.getItem("token")!)
-        const user_id = token.sub;
         const refresh_token = token.refresh_token
+        const user_id = localStorage.getItem('user_id')!;
   
         const payload: RefreshToken = {
           grant_type: "refresh_token",
@@ -67,6 +67,7 @@ function App() {
       }
 
       localStorage.removeItem("token");
+      localStorage.removeItem("user_id");
       localStorage.removeItem("client_id");
       localStorage.removeItem("client_secret");
       

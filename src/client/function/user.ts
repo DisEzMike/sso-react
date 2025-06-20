@@ -3,11 +3,11 @@ import { API_URL } from '../utils/contant';
 import { refreshToken } from './auth';
 
 export const getUser = async () => {
-    const token = sessionStorage.getItem("token");
     try {
+        const token = JSON.parse(localStorage.getItem("token")!);
         return await axios.get(API_URL + '/me', {
             headers: {
-                Authorization: "Bearer " + token
+                Authorization: "Bearer " + token.access_token
             }
         })
     } catch (error) {

@@ -8,7 +8,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { getToken, useGoogleLogin as GoogleLogin, logout, useLocalLogin, useSSOLogin } from "./function/auth";
 import { HOST, LOCAL_CLIENT_ID, LOCAL_CLIENT_SECRET } from "./utils/contant";
 import { getUser } from "./function/user";
-import { RefreshToken, Token } from "../server/src/utils/interfaces";
+import { authCode, RefreshToken, Token } from "../server/src/utils/interfaces";
 import { AxiosError } from "axios";
 
 function App() {
@@ -23,14 +23,12 @@ function App() {
   useEffect(() => {
     onLoadwithCode();
     if (scope && scope.split(" ").length > 1 && !scope.split(" ").includes("nosso")) onLoadwithSSO();
-
-    // if (sessionStorage.getItem("token")) loadProfile();
   }, [])
 
   const onLoadwithSSO = async () => {
     const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
     const redirect_uri = !redirectUri ? HOST! : redirectUri;
-    if (sessionStorage.getItem("token") && redirect_uri == HOST) return;
+    if (localStorage.getItem("token") && redirect_uri == HOST) return;
     const data = {
       client_id,
       redirect_uri,
@@ -53,21 +51,22 @@ function App() {
     const client_secret = LOCAL_CLIENT_SECRET!
     const redirect_uri = !redirectUri ? HOST! : redirectUri;
     if (code == "logout") {
-      const user_id = localStorage.getItem("user_id")!;
-      const refresh_token = localStorage.getItem("refresh_token")!
-
-      const payload: RefreshToken = {
-        grant_type: "refresh_token",
-        client_id,
-        client_secret,
-        user_id,
-        refresh_token
+      if (localStorage.getItem("token")) {
+        const token = JSON.parse(localStorage.getItem("token")!)
+        const user_id = token.sub;
+        const refresh_token = token.refresh_token
+  
+        const payload: RefreshToken = {
+          grant_type: "refresh_token",
+          client_id,
+          client_secret,
+          user_id,
+          refresh_token
+        }
+        await logout(payload);
       }
-      await logout(payload);
 
-      sessionStorage.removeItem("token");
-      localStorage.removeItem("user_id");
-      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("token");
       localStorage.removeItem("client_id");
       localStorage.removeItem("client_secret");
       
@@ -82,16 +81,15 @@ function App() {
     };
     const res = await getToken(payload);
     const token = res.data; 
-    sessionStorage.setItem("token", token.access_token);
+    localStorage.setItem("token", JSON.stringify(token));
     localStorage.setItem("client_id", client_id);
     localStorage.setItem("client_secret", client_secret);
-    localStorage.setItem("refresh_token", token.refresh_token);
     navigate("/me");
   }
 
   
 
-const SignInWithGoogle = useGoogleLogin({
+  const SignInWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;

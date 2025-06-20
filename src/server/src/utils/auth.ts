@@ -5,26 +5,16 @@ import { AuthCode } from '../database/model/AuthCode.ts';
 import { generateCode } from './cryptoUtils.ts';
 import moment from 'moment';
 
-export const getToken = async (code: string) => {
-	const authCode = jwt.verify(code, process.env.JWT_SECRET!) as authCode;
-
-	const user = await User.findByIdAndUpdate(authCode.user_id);
-
-	const access_token = createToken({user});
-
-	return {
-		access_token,
-		token_type: 'Bearer',
-		expires_in: 24 * 60 * 60,
-	};
-};
-
 export const createToken = (payload: any, expiresIn?: any) => {
 	if (!expiresIn) expiresIn = '1d';
 	return jwt.sign(payload, process.env.JWT_SECRET!, {
 		expiresIn
 	});
-}
+};
+
+export function verifyToken(token: string) {
+	return jwt.verify(token, process.env.JWT_SECRET!);
+};
 
 export const getAuthCode = async (data: {user_id: string, client_id: string, redirect_uri: string}) => {
 	const {user_id, client_id, redirect_uri} = data;

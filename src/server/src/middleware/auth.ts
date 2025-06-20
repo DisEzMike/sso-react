@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { IRequest } from "../utils/interfaces.ts";
 import { IUser, User } from "../database/model/User.ts";
-import { getAuthCode, getToken } from "../utils/auth.ts";
+import { getAuthCode } from "../utils/auth.ts";
 import { LOCAL_CLIENT_ID } from "../../../client/utils/contant.ts";
 import { HOST } from "../utils/contant.ts";
 

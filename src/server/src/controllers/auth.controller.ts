@@ -3,7 +3,7 @@ import { authCode, googleProfile, loginType } from "../utils/interfaces.ts";
 import axios from "axios";
 import { ProviderUser } from "../database/model/ProviderUser.ts";
 import { IUser, User } from "../database/model/User.ts";
-import { createToken, getAuthCode, verifyToken } from "../utils/auth.ts";
+import { getAuthCode } from "../utils/auth.ts";
 import { AuthCode } from "../database/model/AuthCode.ts";
 import { generateCode } from "../utils/cryptoUtils.ts";
 import moment from "moment";
@@ -12,6 +12,7 @@ import { HOST } from "../utils/contant.ts";
 import { randomBytes } from "crypto";
 import { RefreshToken } from "../database/model/RefreshToken.ts";
 import bcrypt from 'bcrypt';
+import { signToken, verifyToken } from "../utils/jwt.ts";
 export const authorize: any = async (req: Request, res: Response) => {
 
     if (!req.body) res.status(403).json({status: 403, message: "body not provide."});
@@ -101,7 +102,7 @@ export const token: any = async (req: Request, res: Response) => {
 
         const user = await User.findByIdAndUpdate(authCode?.user_id, {new:true});
         const payload = {user}
-        const access_token = createToken({payload});
+        const access_token = signToken({payload});
 
         const idTokenPayload = {
             iss: HOST + "/oauth",
@@ -109,7 +110,7 @@ export const token: any = async (req: Request, res: Response) => {
             aud: client_id,
             email: user!.email
         };
-        const idToken = createToken(idTokenPayload);
+        const idToken = signToken(idTokenPayload);
         
         // Generate Refresh Token
         const refresh_token = randomBytes(40).toString('hex');
@@ -150,7 +151,7 @@ export const token: any = async (req: Request, res: Response) => {
 
         const user = await User.findByIdAndUpdate(savedToken.user_id, {new: true});
         const payload = {user}
-        const access_token = createToken({payload});
+        const access_token = signToken({payload});
 
         const idTokenPayload = {
             iss: HOST + "/oauth",
@@ -158,7 +159,7 @@ export const token: any = async (req: Request, res: Response) => {
             aud: client_id,
             email: user!.email
         };
-        const idToken = createToken(idTokenPayload);
+        const idToken = signToken(idTokenPayload);
 
         await RefreshToken.deleteOne({ token: refresh_token });
 

@@ -23,12 +23,13 @@ function App() {
   useEffect(() => {
     (() => {
       onLoadwithCode();
-      if (scope && !scope.split(" ").includes("nosso") && !searchParams.get("code") && !redirectUri?.includes("mobile-redirect")) return onLoadwithSSO();
+      if (scope && !scope.split(" ").includes("nosso") && !searchParams.get("code")) return onLoadwithSSO();
       if (localStorage.getItem('token')) navigate('/me');
     })()
   }, [])
 
   const onLoadwithSSO = async () => {
+    if (redirectUri?.includes("mobile-redirect")) return
     const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
     const redirect_uri = !redirectUri ? HOST! : redirectUri;
     // if (localStorage.getItem("token")) return;
@@ -78,7 +79,7 @@ function App() {
     try {      
       const res = await getToken(payload);
       const token = res.data;
-      if (!redirectUri?.includes("mobile-redirect")) localStorage.setItem("token", JSON.stringify(token));
+      localStorage.setItem("token", JSON.stringify(token));
       localStorage.setItem("client_id", client_id);
       localStorage.setItem("client_secret", client_secret);
     } catch (error) {

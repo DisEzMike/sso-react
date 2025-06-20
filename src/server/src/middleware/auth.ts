@@ -25,7 +25,7 @@ export const ssoAuth: any = async (req: IRequest, res: Response) => {
         res.json({redirect_url: `${authCode.redirect_uri}?code=${authCode.code}&state=${state}`});
     } catch (error) {
         console.error(error);
-        res.send('Token Invalid').status(500)
+        res.status(401).send({status: 401, message: 'Token Invalid'});
     }
 }
 
@@ -50,7 +50,7 @@ export const authMiddleware:any = async (req: IRequest, res: Response, next: Nex
     } catch (err) {
         // err
         console.error(err)
-        res.send('Token Invalid').status(500)
+        res.status(401).send({status: 401, message: 'Token Invalid'});
     }
 }
 
@@ -70,13 +70,13 @@ export const checkAdmin:any = async (req: IRequest, res: Response, next: NextFun
             req.user = user!;
             
             if (req.user.role == 0) next();
-            else res.send("You are not allow to get this route").status(403);
+            else res.status(403).json({status: 403, message: "You are not allow to get this route"});
         } catch (error) {
             res.status(401).json({status: 401, message: 'Invalid access token'});
         }
     } catch (err) {
         // err
         console.error(err)
-        res.send('Token Invalid').status(500)
+        res.status(401).json({status: 401, message: 'Token Invalid'});
     }
 } 

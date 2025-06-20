@@ -24,7 +24,7 @@ export const authorize: any = async (req: Request, res: Response) => {
 
         const client = await Client.findOne({ client_id: data.client_id });
             if (!client || !client.redirectUris.includes(data.redirect_uri)) {
-            return res.status(400).send('Invalid client or redirect URI');
+            return res.status(400).json({status: 400, message: 'Invalid client or redirect URI'});
         }
     
         if (type == "local") {
@@ -93,12 +93,12 @@ export const token: any = async (req: Request, res: Response) => {
         
         const client = await Client.findOne({ client_id });
         if (!client) {
-            return res.status(401).send('Invalid client credentials');
+            return res.status(401).json({status: 401, message: 'Invalid client credentials'});
         }
         
         const authCode = await AuthCode.findOne({ code, client_id, redirect_uri });
         if (!authCode || moment().isAfter(authCode.expiresAt)) {
-            return res.status(400).send('Invalid or expired authorization code');
+            return res.status(400).json({status: 400, message: 'Invalid or expired authorization code'});
         }
 
         const user = await User.findByIdAndUpdate(authCode?.user_id, {new:true});
@@ -143,12 +143,12 @@ export const token: any = async (req: Request, res: Response) => {
         const { refresh_token, client_id, client_secret, user_id } = req.body;
         const client = await Client.findOne({ client_id });
         if (!client || client.client_secret !== client_secret) {
-            return res.status(401).send('Invalid client credentials');
+            return res.status(401).json({status: 401, message: 'Invalid client credentials'});
         }
 
         const savedToken = await RefreshToken.findOneAndUpdate({ token: refresh_token, user_id });
             if (!savedToken || moment().isAfter(savedToken.expiresAt)) {
-            return res.status(400).send('Invalid or expired refresh token');
+            return res.status(400).json({status: 400, message: 'Invalid or expired refresh token'});
         }
 
         const user = await User.findByIdAndUpdate(savedToken.user_id, {new: true});

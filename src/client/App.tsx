@@ -23,7 +23,7 @@ function App() {
   useEffect(() => {
     (() => {
       onLoadwithCode();
-      if (scope && !scope.split(" ").includes("nosso") && !searchParams.get("code")) return onLoadwithSSO();
+      if (scope && !scope.split(" ").includes("nosso") && !searchParams.get("code") && !redirectUri?.includes("mobile-redirect")) return onLoadwithSSO();
       if (localStorage.getItem('token')) navigate('/me');
     })()
   }, [])
@@ -42,7 +42,7 @@ function App() {
       localStorage.setItem('redirect_url', response.data.redirect_url);
       window.location.href = `/?del=0&client_id=${client_id}&redirect_uri=${redirect_uri}&` + response.data.redirect_url.split("?")[1];
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
 
 
@@ -75,11 +75,17 @@ function App() {
       del
     };
 
-    const res = await getToken(payload);
-    const token = res.data; 
-    localStorage.setItem("token", JSON.stringify(token));
-    localStorage.setItem("client_id", client_id);
-    localStorage.setItem("client_secret", client_secret);
+    try {      
+      const res = await getToken(payload);
+      const token = res.data;
+      if (!redirectUri?.includes("mobile-redirect")) localStorage.setItem("token", JSON.stringify(token));
+      localStorage.setItem("client_id", client_id);
+      localStorage.setItem("client_secret", client_secret);
+    } catch (error) {
+      console.log(error);
+      const message = error instanceof AxiosError ? error.response!.data.message : (error as any).message;
+      setErrorMsg(message);
+    }
 
     if (del == "0") {
         const user = await getUser();
@@ -109,7 +115,11 @@ function App() {
         const response = await GoogleLogin(payload);
         redirectLogin(response.data);
       } catch (error) {
-        console.error(error);
+        if (error instanceof AxiosError) {
+          console.error(error.response?.data);
+        }
+        const message = error instanceof AxiosError ? error.response!.data.message : (error as any).message;
+        setErrorMsg(message);
       }
     }
   });

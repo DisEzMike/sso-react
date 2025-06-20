@@ -107,10 +107,9 @@ function App() {
           redirect_uri
         };
         const response = await GoogleLogin(payload);
-        localStorage.setItem('redirect_url', response.data.redirect_url);
-        window.location.href = `/?del=0&client_id=${client_id}&redirect_uri=${redirect_uri}&` + response.data.redirect_url.split("?")[1];
+        redirectLogin(response.data);
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
     }
   });
@@ -125,14 +124,21 @@ function App() {
           state, 
           redirect_uri
         };
-      const response = await useLocalLogin(payload);
-      window.location = response.data.redirect_url;
+        const response = await useLocalLogin(payload);
+        redirectLogin(response.data);
     } catch (error) {
       console.error(error);
       const message = error instanceof AxiosError ? error.response!.data.message : (error as any).message;
       setErrorMsg(message);
     }
 
+  }
+
+  const redirectLogin =(data: any) => {
+    const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
+    const redirect_uri = redirectUri!;
+    localStorage.setItem('redirect_url', data.redirect_url);
+    window.location.href = `/?del=0&client_id=${client_id}&redirect_uri=${redirect_uri}&` + data.redirect_url.split("?")[1];
   }
 
   return (

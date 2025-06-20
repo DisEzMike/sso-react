@@ -1,6 +1,6 @@
 import { TokenResponse } from '@react-oauth/google';
 import axios from 'axios';
-import { AUTH_URL } from '../utils/contant';
+import { AUTH_URL, HOST } from '../utils/contant';
 import { authCode, RefreshToken, Token } from '../../server/src/utils/interfaces';
 
 export const useGoogleLogin = async (data: any) => {
@@ -24,10 +24,11 @@ export const getToken = async (arg: Token) => {
 }
 
 export const refreshToken = async (cb: any) => {
-    const user_id = localStorage.getItem("user_id")!;
+    const token = JSON.parse(localStorage.getItem('token')!);
+    const refresh_token = token.refresh_token;
+    const user_id = localStorage.getItem('user_id')!;
     const client_id = localStorage.getItem("client_id")!;
     const client_secret = localStorage.getItem("client_secret")!;
-    const refresh_token = localStorage.getItem("refresh_token")!;
 
     const arg: RefreshToken = {
         grant_type: "refresh_token",
@@ -36,16 +37,18 @@ export const refreshToken = async (cb: any) => {
         refresh_token,
         user_id
     }
+
     try {
        const response = await axios.post(AUTH_URL+"/token", {...arg}); 
        const data = response.data
 
-       sessionStorage.setItem('token', data.access_token);
-       localStorage.setItem('refresh_token', data.refresh_token);
+       localStorage.setItem('token', JSON.stringify(data));
        console.log("refresh_token update")
        return cb();
     } catch (error) {
-        console.error(error)
+        console.error(error);
+
+        window.location.href = HOST+`/oauth/logout?id_token_hint=${token.id_token}`;
     }
 }
 

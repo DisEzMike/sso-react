@@ -16,19 +16,22 @@ function App() {
   const [clientId, setClientId] = useState(searchParams.get("client_id"));
   const [state, setState] = useState(searchParams.get("state"));
   const [redirectUri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST);
-  const [scope, setScope] = useState(searchParams.get("scope") || HOST);
+  const [scope, setScope] = useState(searchParams.get("scope"));
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    onLoadwithCode();
-    if (scope && scope.split(" ").length > 1 && !scope.split(" ").includes("nosso")) onLoadwithSSO();
+    (() => {
+      onLoadwithCode();
+      if (scope && !scope.split(" ").includes("nosso")) return onLoadwithSSO();
+      if (localStorage.getItem('token')) navigate('/me');
+    })()
   }, [])
 
   const onLoadwithSSO = async () => {
     const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
     const redirect_uri = !redirectUri ? HOST! : redirectUri;
-    if (localStorage.getItem("token") && redirect_uri == HOST) return;
+    // if (localStorage.getItem("token")) return;
     const data = {
       client_id,
       redirect_uri,
@@ -53,23 +56,13 @@ function App() {
     if (code == "logout") {
       if (localStorage.getItem("token")) {
         const token = JSON.parse(localStorage.getItem("token")!)
-        const refresh_token = token.refresh_token
-        const user_id = localStorage.getItem('user_id')!;
-  
-        const payload: RefreshToken = {
-          grant_type: "refresh_token",
-          client_id,
-          client_secret,
-          user_id,
-          refresh_token
-        }
-        await logout(payload);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("client_id");
+        localStorage.removeItem("client_secret");
+        await logout(token.id_token);
       }
 
-      localStorage.removeItem("token");
-      localStorage.removeItem("user_id");
-      localStorage.removeItem("client_id");
-      localStorage.removeItem("client_secret");
       
       return window.location.href = redirect_uri;
     }

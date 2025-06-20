@@ -6,15 +6,13 @@ function UserProfile() {
     const [user, setUser] = useState("");
     const navigate = useNavigate();
     useEffect(() => {
-        if (sessionStorage.getItem('token')) loadProfile();
+        if (localStorage.getItem('token')) loadProfile();
         else navigate('/')
     }, []);
 
     const loadProfile = async () => {
         const user = await getUser();
         if (user) {
-            console.log(user)
-            localStorage.setItem('user_id', user.data.sub);
             setUser(JSON.stringify(user.data));
         }
   }

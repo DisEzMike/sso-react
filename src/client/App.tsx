@@ -23,7 +23,7 @@ function App() {
   useEffect(() => {
     (() => {
       onLoadwithCode();
-      if (scope && !scope.split(" ").includes("nosso")) return onLoadwithSSO();
+      if (scope && !scope.split(" ").includes("nosso") && !searchParams.get("code")) return onLoadwithSSO();
       if (localStorage.getItem('token')) navigate('/me');
     })()
   }, [])
@@ -39,7 +39,8 @@ function App() {
     }
     try {
       const response = await useSSOLogin(data);
-      window.location.href = response.data.redirect_url;
+      localStorage.setItem('redirect_url', response.data.redirect_url);
+      window.location.href = `/?del=0&client_id=${client_id}&redirect_uri=${redirect_uri}&` + response.data.redirect_url.split("?")[1];
     } catch (error) {
       console.log(error)
     }
@@ -49,6 +50,7 @@ function App() {
 
   const onLoadwithCode = async () => {
     const code = searchParams.get("code");
+    const del = searchParams.get("del"); 
     if (!code) return;
     const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
     const client_secret = LOCAL_CLIENT_SECRET!
@@ -62,23 +64,33 @@ function App() {
         localStorage.removeItem("client_secret");
         await logout(token.id_token);
       }
-
-      
       return window.location.href = redirect_uri;
     }
-    const payload: Token = {
+    const payload: any = {
       grant_type: "authorization_code",
       code,
       client_id,
       client_secret,
-      redirect_uri
+      redirect_uri,
+      del
     };
+
     const res = await getToken(payload);
     const token = res.data; 
     localStorage.setItem("token", JSON.stringify(token));
     localStorage.setItem("client_id", client_id);
     localStorage.setItem("client_secret", client_secret);
-    navigate("/me");
+
+    if (del == "0") {
+        const user = await getUser();
+        if (user) {
+            localStorage.setItem('user_id', user.data.sub as string);
+        }
+
+        window.location.href = localStorage.getItem("redirect_url")!;
+      } else {
+      navigate("/me");
+    }
   }
 
   
@@ -95,7 +107,8 @@ function App() {
           redirect_uri
         };
         const response = await GoogleLogin(payload);
-         window.location = response.data.redirect_url;
+        localStorage.setItem('redirect_url', response.data.redirect_url);
+        window.location.href = `/?del=0&client_id=${client_id}&redirect_uri=${redirect_uri}&` + response.data.redirect_url.split("?")[1];
       } catch (error) {
         console.error(error)
       }

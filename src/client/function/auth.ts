@@ -17,7 +17,7 @@ export const useLocalLogin = async (data: any) => {
     });
 }
 
-export const getToken = async (arg: Token) => {
+export const getToken = async (arg: any) => {
     return axios.post(AUTH_URL+"/token", {
         ...arg,
     });

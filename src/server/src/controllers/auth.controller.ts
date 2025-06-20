@@ -222,7 +222,7 @@ export const register: any = async (req: Request, res: Response) => {
     }
 }
 
-export const removeSSO: any = async (req: Request, res: Response) => {
+export const revokeToken: any = async (req: Request, res: Response) => {
     const {id_token_hint, post_logout_redirect_uri} = req.query;
 	let referer = req.headers['referer'];
 	if (!referer) referer = "/";
@@ -233,19 +233,7 @@ export const removeSSO: any = async (req: Request, res: Response) => {
     
     if (id_token_hint) {
         const payload = verifyToken(id_token_hint as string) as any;
-        console.log(payload)
         await RefreshToken.deleteMany({ user_id: payload.sub });
     }
     res.redirect(`/?code=logout&redirect_uri=${referer}`);
-}
-
-export const revokeToken: any = async (req: Request, res: Response) => {
-	let referer = req.headers['referer'];
-	if (!referer) referer = "/";
-   try {
-        return res.send(`<script>window.location = '${referer}'</script>`)
-
-    } catch (error) {
-        console.error(error);
-    }
 }

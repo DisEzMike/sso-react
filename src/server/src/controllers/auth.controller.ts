@@ -217,16 +217,17 @@ export const token: any = async (req: Request, res: Response) => {
 
 export const discovery = (req: Request, res: Response) => {
   res.json({
-    issuer: HOST + '/oauth',
-    authorization_endpoint: `${HOST}`,
-    token_endpoint: `${HOST}/oauth/token`,
+    issuer: HOST + '/auth',
+    authorization_endpoint: `${HOST}/auth/authorize`,
+    token_endpoint: `${HOST}/auth/token`,
     userinfo_endpoint: `${HOST}/api/me`,
-    end_session_endpoint:`${HOST}/oauth/logout`,
+    end_session_endpoint:`${HOST}/auth/end-session`,
+    scopes_supported: ['openid', 'profile', 'email'],
     response_types_supported: ['code'],
     subject_types_supported: ['public'],
     id_token_signing_alg_values_supported: ['HS256'],
-    scopes_supported: ['openid', 'profile', 'email'],
     token_endpoint_auth_methods_supported: ['client_secret_post'],
+    claims_supported: ['sub', 'email', 'name']
   });
 };
 

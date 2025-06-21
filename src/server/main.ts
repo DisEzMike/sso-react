@@ -24,7 +24,7 @@ const startServer = async () => {
   app.use(bodyParse.urlencoded());
   
   app.use('/api', mainRouter);
-  app.use('/oauth', authRouter);
+  app.use('/auth', authRouter);
   app.use('/admin', adminRouter);
 
   const port = Number(process.env.PORT) || 8080;

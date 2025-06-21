@@ -17,7 +17,7 @@ export const authMiddleware:any = async (req: IRequest, res: Response, next: Nex
             const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
             const {payload} = decoded;
     
-            const user = await User.findByIdAndUpdate<IUser>(payload.user._id, {new: true});
+            const user = await User.findByIdAndUpdate<IUser>(payload.sub, {new: true});
             req.user = user!;
                     
             next();
@@ -44,7 +44,7 @@ export const checkAdmin:any = async (req: IRequest, res: Response, next: NextFun
             const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
             const {payload} = decoded;
 
-            const user = await User.findByIdAndUpdate<IUser>(payload.user._id, {new: true});
+            const user = await User.findByIdAndUpdate<IUser>(payload.sub, {new: true});
             req.user = user!;
             
             if (req.user.role == 0) next();

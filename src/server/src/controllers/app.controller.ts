@@ -11,16 +11,19 @@ export const getUser: any = (req: IRequest, res: Response) => {
 
     const scopeMapping: { [key: string]: string[] } = {
       email: ['email'],
-      profile: ['displayName', 'preferred_username']
+      profile: ['name', 'preferred_username']
     };
 
     grantedScopes.forEach(scope => {
       const userField = scopeMapping[scope];
       if (userField && userField.length > 0) {
         userField.forEach((field) => {
-          if (field == 'preferred_username') {
+          if (field == 'name') {
+              response[field] = user.displayName
+            }
+            else if (field == 'preferred_username') {
               response[field] = user.username
-            } 
+            }
             else if ((user as any)[field]) {
               response[field] = (user as any)[field]
           }

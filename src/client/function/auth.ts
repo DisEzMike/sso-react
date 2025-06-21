@@ -4,14 +4,14 @@ import { AUTH_URL, HOST } from '../utils/contant';
 import { authCode, RefreshToken, Token } from '../../server/src/utils/interfaces';
 
 export const useGoogleLogin = async (data: any) => {
-    return axios.post(AUTH_URL+"/login", {
+    return axios.post(AUTH_URL+"/authorize", {
         type: "google",
         data
     });
 }
 
 export const useLocalLogin = async (data: any) => {
-    return axios.post(AUTH_URL+"/login", {
+    return axios.post(AUTH_URL+"/authorize", {
         type: "local",
         data
     });

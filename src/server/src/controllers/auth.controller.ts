@@ -116,7 +116,7 @@ export const token: any = async (req: Request, res: Response) => {
     const { grant_type } = req.body;
     if (grant_type == 'authorization_code') {
         try {
-        const { code, client_id, client_secret, redirect_uri, scope } = req.body;
+        const { code, client_id, client_secret, redirect_uri } = req.body;
         
         const client = await Client.findOne({ client_id });
         if (!client || client.client_secret !== client_secret) {
@@ -150,7 +150,7 @@ export const token: any = async (req: Request, res: Response) => {
             user_id: user!._id,
             client_id: client_id,
             expiresAt: refreshTokenExpiry,
-            scope
+            scope: authCode.scope
         });
         await createRefreshToken.save();
         

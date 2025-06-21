@@ -10,11 +10,12 @@ import { HOST, LOCAL_CLIENT_ID, LOCAL_CLIENT_SECRET } from "./utils/contant";
 import { getUser } from "./function/user";
 import { authCode, RefreshToken, Token } from "../server/src/utils/interfaces";
 import { AxiosError } from "axios";
+import { randomBytes } from "crypto";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [clientId, setClientId] = useState(searchParams.get("client_id"));
-  const [state, setState] = useState(searchParams.get("state"));
+  const [state, setState] = useState(searchParams.get("state") || randomBytes(32).toString());
   const [redirectUri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST);
   const [scope, setScope] = useState(searchParams.get("scope"));
   const [errorMsg, setErrorMsg] = useState("");

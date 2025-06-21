@@ -43,7 +43,7 @@ export interface authCode {
     client_id: string
 }
 
-export type IRequest = Request & {user: IUser}
+export type IRequest = Request & {user: IUser, token: IdToken}
 
 interface ProToTokenArg {
     client_id: string;
@@ -64,3 +64,12 @@ export interface RefreshToken extends ProToTokenArg {
 }
 
 export type TokenType = Token | RefreshToken;
+
+export interface IdToken {
+    access_token: string,
+    token_type: string,
+    expires_in: number,
+    id_token: string,
+    refresh_token: string
+
+}

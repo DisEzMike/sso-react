@@ -49,7 +49,7 @@ export const authorize: any = async (req: Request, res: Response) => {
             if (!data.state) data.state = randomBytes(16).toString('hex');
         
             if (type == "local") {
-                const {username, password} = data;
+                const {username, password, scope} = data;
                 const user = await User.findOneAndUpdate({$or: [{username}, {email: username}]}, {new:true});
                 if (!user) return res.status(401).json({status: 401, message: "user not found"});
 
@@ -60,6 +60,7 @@ export const authorize: any = async (req: Request, res: Response) => {
                     client_id: data.client_id,
                     user_id: user!._id,
                     redirect_uri: data.redirect_uri,
+                    scope
                 })
 
                 res.json({redirect_url: `${data.redirect_uri}?code=${authCode.code}&state=${data.state}`});
@@ -70,7 +71,8 @@ export const authorize: any = async (req: Request, res: Response) => {
                             Authorization: `Bearer ${data.access_token}`
                         }
                     });
-                    const profile = response.data as googleProfile
+                    const profile = response.data as googleProfile;
+                    const { scope } = data;
                     const authData = {type, profile};
                     const providerUser = await ProviderUser.findOneAndUpdate({providerId: authData.profile.id});
                     let user;
@@ -91,6 +93,7 @@ export const authorize: any = async (req: Request, res: Response) => {
                         client_id: data.client_id,
                         user_id: user!._id,
                         redirect_uri: data.redirect_uri,
+                        scope
                     })
 
                     res.json({redirect_url: `${data.redirect_uri}?code=${authCode.code}&state=${data.state}`});

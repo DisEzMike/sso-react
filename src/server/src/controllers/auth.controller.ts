@@ -30,6 +30,8 @@ export const authorize: any = async (req: Request, res: Response) => {
             return res.status(400).send('Invalid client or redirect URI');
         }
 
+        if (!state) randomBytes(32).toString();
+
         const login_url = `/?scope=${scope}&response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
         return res.send(`<script>window.location.href = '${login_url}'</script>`)
     } else if (req.method == 'POST') {
@@ -37,12 +39,14 @@ export const authorize: any = async (req: Request, res: Response) => {
         else {
             const {body} = req;
         
-            const {type, data} = body as loginType;
+            let {type, data} = body as loginType;
 
             const client = await Client.findOne({ client_id: data.client_id });
                 if (!client || !client.redirectUris.includes(data.redirect_uri)) {
                 return res.status(400).json({status: 400, message: 'Invalid client or redirect URI'});
             }
+
+            if (!data.state) data.state = randomBytes(32).toString();
         
             if (type == "local") {
                 const {username, password} = data;

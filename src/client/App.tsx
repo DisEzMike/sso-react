@@ -23,35 +23,30 @@ function App() {
   useEffect(() => {
     (() => {
       onLoadwithCode();
-      if (scope && !scope.split(" ").includes("nosso") && !searchParams.get("code")) return onLoadwithSSO();
-      if (localStorage.getItem('token')) navigate('/me');
     })()
   }, [])
 
-  const onLoadwithSSO = async () => {
-    if (redirectUri?.includes("mobile-redirect")) return
-    const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
-    const redirect_uri = !redirectUri ? HOST! : redirectUri;
-    // if (localStorage.getItem("token")) return;
-    const data = {
-      client_id,
-      redirect_uri,
-      state
-    }
-    try {
-      const response = await useSSOLogin(data);
-      localStorage.setItem('redirect_url', response.data.redirect_url);
-      window.location.href = `/?del=0&client_id=${client_id}&redirect_uri=${redirect_uri}&` + response.data.redirect_url.split("?")[1];
-    } catch (error) {
-      console.log(error);
-    }
-
-
-  }
+  // const onLoadwithSSO = async () => {
+  //   if (redirectUri?.includes("mobile-redirect")) return
+  //   const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
+  //   const redirect_uri = !redirectUri ? HOST! : redirectUri;
+  //   // if (localStorage.getItem("token")) return;
+  //   const data = {
+  //     client_id,
+  //     redirect_uri,
+  //     state
+  //   }
+  //   try {
+  //     const response = await useSSOLogin(data);
+  //     localStorage.setItem('redirect_url', response.data.redirect_url);
+  //     window.location.href = `/?del=0&client_id=${client_id}&redirect_uri=${redirect_uri}&` + response.data.redirect_url.split("?")[1];
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   const onLoadwithCode = async () => {
     const code = searchParams.get("code");
-    const del = searchParams.get("del"); 
     if (!code) return;
     const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
     const client_secret = LOCAL_CLIENT_SECRET!
@@ -67,13 +62,12 @@ function App() {
       }
       return window.location.href = redirect_uri;
     }
-    const payload: any = {
+    const payload: Token = {
       grant_type: "authorization_code",
       code,
       client_id,
       client_secret,
       redirect_uri,
-      del
     };
 
     try {      
@@ -82,39 +76,20 @@ function App() {
       localStorage.setItem("token", JSON.stringify(token));
       localStorage.setItem("client_id", client_id);
       localStorage.setItem("client_secret", client_secret);
+      navigate('/me')
     } catch (error) {
       console.log(error);
       const message = error instanceof AxiosError ? error.response!.data.message : (error as any).message;
       setErrorMsg(message);
-    }
-
-    if (del == "0") {
-        const user = await getUser();
-        if (user) {
-            localStorage.setItem('user_id', user.data.sub as string);
-        }
-
-        window.location.href = localStorage.getItem("redirect_url")!;
-      } else {
-      navigate("/me");
     }
   }
 
   
 
   const SignInWithGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
+    onSuccess: async (data) => {
       try {
-        const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
-        const redirect_uri = redirectUri!;
-        const payload = {
-          ...tokenResponse,
-          client_id, 
-          state, 
-          redirect_uri
-        };
-        const response = await GoogleLogin(payload);
-        redirectLogin(response.data);
+        await Login(GoogleLogin, data);
       } catch (error) {
         if (error instanceof AxiosError) {
           console.error(error.response?.data);
@@ -127,16 +102,7 @@ function App() {
 
   const LocalSignIn = async (data: {username: string, password: string}) => {
     try {
-      const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
-        const redirect_uri = redirectUri!;
-        const payload = {
-          ...data,
-          client_id, 
-          state, 
-          redirect_uri
-        };
-        const response = await useLocalLogin(payload);
-        redirectLogin(response.data);
+      await Login(useLocalLogin, data);
     } catch (error) {
       console.error(error);
       const message = error instanceof AxiosError ? error.response!.data.message : (error as any).message;
@@ -145,11 +111,17 @@ function App() {
 
   }
 
-  const redirectLogin =(data: any) => {
+  const Login = async (loginType: any, data:any) => {
     const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
     const redirect_uri = redirectUri!;
-    localStorage.setItem('redirect_url', data.redirect_url);
-    window.location.href = `/?del=0&client_id=${client_id}&redirect_uri=${redirect_uri}&` + data.redirect_url.split("?")[1];
+    const payload = {
+          ...data,
+          client_id, 
+          state, 
+          redirect_uri
+        };
+    const response = await loginType(payload);
+    return window.location.href = response.data.redirect_url;
   }
 
   return (

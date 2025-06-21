@@ -256,11 +256,6 @@ export const revokeToken: any = async (req: Request, res: Response) => {
     const {id_token_hint, post_logout_redirect_uri} = req.query;
 	let referer = req.headers['referer'];
 	if (!referer) referer = "/";
-
-	res.clearCookie("sso_token", {
-		domain: ".mikenatcavon.com",
-	});
-    
     if (id_token_hint) {
         const payload = verifyToken(id_token_hint as string) as any;
         await RefreshToken.deleteMany({ user_id: payload.sub });

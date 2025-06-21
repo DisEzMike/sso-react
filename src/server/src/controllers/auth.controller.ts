@@ -77,7 +77,7 @@ export const authorize: any = async (req: Request, res: Response) => {
                     const providerUser = await ProviderUser.findOneAndUpdate({providerId: authData.profile.id});
                     let user;
                     if (providerUser) {
-                        user = await User.findByIdAndUpdate(providerUser.userId, {new: true}); 
+                        user = await User.findByIdAndUpdate(providerUser.userId, {new: true});
                     } else {
                         const new_providerUser = new ProviderUser({
                             type: authData.type,

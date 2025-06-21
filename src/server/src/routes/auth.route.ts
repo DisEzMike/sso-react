@@ -10,9 +10,9 @@ router.get('/', (req, res) => {
 });
 router.post('/', ssoAuth);
 
-
-router.post("/login", authorize);
 router.post("/register", register);
+router.get("/authorize", authorize);
+router.post("/authorize", authorize);
 router.post("/token", token)
 router.get("/logout", revokeToken);
 

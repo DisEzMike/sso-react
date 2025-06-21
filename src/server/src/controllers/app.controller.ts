@@ -9,15 +9,22 @@ export const getUser: any = (req: IRequest, res: Response) => {
     const grantedScopes = token.scope ? token.scope.split(' ') : [];
     const response: any = { sub: user._id.toString() };
 
-    const scopeMapping: { [key: string]: keyof typeof user } = {
-      email: 'email',
-      profile: 'displayName'
+    const scopeMapping: { [key: string]: string[] } = {
+      email: ['email'],
+      profile: ['displayName', 'preferred_username']
     };
 
     grantedScopes.forEach(scope => {
       const userField = scopeMapping[scope];
-      if (userField && user[userField]) {
-        response[userField] = user[userField];
+      if (userField && userField.length > 0) {
+        userField.forEach((field) => {
+          if (field == 'preferred_username') {
+              response[field] = user.username
+            } 
+            else if ((user as any)[field]) {
+              response[field] = (user as any)[field]
+          }
+        })
       }
     });
     

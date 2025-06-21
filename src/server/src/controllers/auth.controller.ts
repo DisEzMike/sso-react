@@ -8,7 +8,7 @@ import { AuthCode } from "../database/model/AuthCode.ts";
 import { generateCode } from "../utils/cryptoUtils.ts";
 import moment from "moment";
 import { Client } from "../database/model/Client.ts";
-import { HOST } from "../utils/contant.ts";
+import { HOST, ISSUER } from "../utils/contant.ts";
 import { randomBytes } from "crypto";
 import { RefreshToken } from "../database/model/RefreshToken.ts";
 import bcrypt from 'bcrypt';
@@ -129,11 +129,12 @@ export const token: any = async (req: Request, res: Response) => {
         }
 
         const user = await User.findByIdAndUpdate(authCode?.user_id, {new:true});
-        const payload = {user}
+        if (!user) return res.status(400).json({status: 400, message: 'User not found'});
+        const payload = {sub: user._id.toString(), client_id, email: user.email, scope: authCode.scope.join(" ")}
         const access_token = signToken({payload});
 
         const idTokenPayload = {
-            iss: HOST + "/oauth",
+            iss: ISSUER,
             sub: user!._id.toString(),
             aud: client_id,
             email: user!.email
@@ -179,11 +180,12 @@ export const token: any = async (req: Request, res: Response) => {
         }
 
         const user = await User.findByIdAndUpdate(savedToken.user_id, {new: true});
-        const payload = {user}
+        if (!user) return res.status(400).json({status: 400, message: 'User not found'});
+        const payload = {sub: user._id.toString(), client_id, email: user.email, scope: savedToken.scope.join(" ")}
         const access_token = signToken({payload});
 
         const idTokenPayload = {
-            iss: HOST + "/oauth",
+            iss: ISSUER,
             sub: user!._id.toString(),
             aud: client_id,
             email: user!.email
@@ -217,7 +219,7 @@ export const token: any = async (req: Request, res: Response) => {
 
 export const discovery = (req: Request, res: Response) => {
   res.json({
-    issuer: HOST + '/auth',
+    issuer: ISSUER,
     authorization_endpoint: `${HOST}/auth/authorize`,
     token_endpoint: `${HOST}/auth/token`,
     userinfo_endpoint: `${HOST}/api/me`,

@@ -26,7 +26,7 @@ function App() {
       if (scope) {
         setScope(scope.split(" "));
       } else {
-        setScope(['openid']);
+        setScope(['openid', 'profile', 'email']);
       }
       onLoadwithCode();
     })()

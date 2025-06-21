@@ -54,6 +54,7 @@ export interface Token extends ProToTokenArg {
     grant_type: "authorization_code";
     code: string;
     redirect_uri: string;
+    scope: string[]
 }
 
 export interface RefreshToken extends ProToTokenArg {

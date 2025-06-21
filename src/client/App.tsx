@@ -72,6 +72,7 @@ function App() {
       client_id,
       client_secret,
       redirect_uri,
+      scope
     };
 
     try {      

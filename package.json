@@ -1,5 +1,5 @@
 {
-  "name": "oidc-provider-vite-express",
+  "name": "oidc-provider-vite",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -41,5 +41,6 @@
     "dotenv": "^16.5.0",
     "nodemon": "^3.1.10",
     "vite": "^6.3.3"
-  }
+  },
+  "license": "MIT"
 }

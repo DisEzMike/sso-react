@@ -89,10 +89,10 @@ export const token: any = async (req: Request, res: Response) => {
     const { grant_type } = req.body;
     if (grant_type == 'authorization_code') {
         try {
-        const { code, client_id, client_secret, redirect_uri, del } = req.body;
+        const { code, client_id, client_secret, redirect_uri } = req.body;
         
         const client = await Client.findOne({ client_id });
-        if (!client) {
+        if (!client || client.client_secret !== client_secret) {
             return res.status(401).json({status: 401, message: 'Invalid client credentials'});
         }
         
@@ -124,9 +124,8 @@ export const token: any = async (req: Request, res: Response) => {
             expiresAt: refreshTokenExpiry,
         });
         await createRefreshToken.save();
-
-        console.log(code);
-        if (del == undefined) await AuthCode.deleteOne({ code });
+        
+        await AuthCode.deleteOne({ code });
         
         res.json({
             access_token,

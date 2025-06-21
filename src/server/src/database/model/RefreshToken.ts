@@ -5,6 +5,7 @@ export interface IRefreshToken {
   user_id: string;
   client_id: string;
   expiresAt: Date;
+  scope: string[];
 }
 
 const refreshTokenSchema = new mongoose.Schema<IRefreshToken>({
@@ -12,6 +13,7 @@ const refreshTokenSchema = new mongoose.Schema<IRefreshToken>({
   user_id: mongoose.Schema.Types.ObjectId,
   client_id: String,
   expiresAt: Date,
+  scope: [String]
 });
 
 export const RefreshToken = mongoose.model<IRefreshToken>('refreshtokens', refreshTokenSchema);

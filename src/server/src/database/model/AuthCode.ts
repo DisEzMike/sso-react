@@ -3,11 +3,11 @@ import mongoose from 'mongoose';
 
 export interface IAuthCode {
     code: string;
-    client_id: string,
-    user_id: string,
-    redirect_uri: string,
-    expiresAt: Date,
-    removeIn: Date
+    client_id: string;
+    user_id: string;
+    redirect_uri: string;
+    expiresAt: Date;
+    scope: string[];
 }
 
 const authCodeSchema = new mongoose.Schema<IAuthCode>({
@@ -16,11 +16,7 @@ const authCodeSchema = new mongoose.Schema<IAuthCode>({
   user_id: mongoose.Schema.Types.ObjectId,
   redirect_uri: String,
   expiresAt: Date,
-  removeIn: {
-    type: Date,
-    default: moment(),
-    expires: '10s'
-  }
+  scope: [String]
 });
 
 export const AuthCode = mongoose.model<IAuthCode>('AuthCode', authCodeSchema);

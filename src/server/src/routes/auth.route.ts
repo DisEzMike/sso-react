@@ -13,6 +13,7 @@ router.get("/authorize", authorize);
 router.post("/authorize", authorize);
 router.post("/token", token)
 router.get("/logout", revokeToken);
+router.get("/end-session", revokeToken);
 
 router.get('/.well-known/openid-configuration', discovery);
 

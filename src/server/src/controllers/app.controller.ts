@@ -4,13 +4,22 @@ import { signToken } from "../utils/jwt.ts";
 
 export const getUser: any = (req: IRequest, res: Response) => {
     const user = req.user
-    const access_token = signToken({user});
-    const payload = {
-        displayName: user.displayName,
-        sub: user._id.toString(),
-        email: user.email,
-        access_token,
-        user
-    }
-    res.json(payload)
+    const token = req.token
+
+    const grantedScopes = token.scope ? token.scope.split(' ') : [];
+    const response: any = { sub: user._id.toString() };
+
+    const scopeMapping: { [key: string]: keyof typeof user } = {
+      email: 'email',
+      profile: 'displayName'
+    };
+
+    grantedScopes.forEach(scope => {
+      const userField = scopeMapping[scope];
+      if (userField && user[userField]) {
+        response[userField] = user[userField];
+      }
+    });
+    
+    res.json(response)
 }

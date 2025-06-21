@@ -30,7 +30,7 @@ export const authorize: any = async (req: Request, res: Response) => {
             return res.status(400).send('Invalid client or redirect URI');
         }
 
-        if (!state) randomBytes(32).toString();
+        if (!state) randomBytes(16).toString('hex');
 
         const login_url = `/?scope=${scope}&response_type=${response_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${state}`;
         return res.send(`<script>window.location.href = '${login_url}'</script>`)
@@ -46,7 +46,7 @@ export const authorize: any = async (req: Request, res: Response) => {
                 return res.status(400).json({status: 400, message: 'Invalid client or redirect URI'});
             }
 
-            if (!data.state) data.state = randomBytes(32).toString();
+            if (!data.state) data.state = randomBytes(16).toString('hex');
         
             if (type == "local") {
                 const {username, password} = data;

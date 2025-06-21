@@ -10,19 +10,24 @@ import { HOST, LOCAL_CLIENT_ID, LOCAL_CLIENT_SECRET } from "./utils/contant";
 import { getUser } from "./function/user";
 import { authCode, RefreshToken, Token } from "../server/src/utils/interfaces";
 import { AxiosError } from "axios";
-import { randomBytes } from "crypto";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [clientId, setClientId] = useState(searchParams.get("client_id"));
-  const [state, setState] = useState(searchParams.get("state") || randomBytes(32).toString());
-  const [redirectUri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST);
-  const [scope, setScope] = useState(searchParams.get("scope"));
+  const [client_id, setClientId] = useState(searchParams.get("client_id") || LOCAL_CLIENT_ID!);
+  const [state, setState] = useState(searchParams.get("state"));
+  const [redirect_uri, setRedirectUri] = useState(searchParams.get("redirect_uri") || HOST!);
+  const [scope, setScope] = useState(([] as string[]));
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     (() => {
+      let scope: string | null | string[] = searchParams.get("scope");
+      if (scope) {
+        setScope(scope.split(" "));
+      } else {
+        setScope(['openid']);
+      }
       onLoadwithCode();
     })()
   }, [])
@@ -49,9 +54,7 @@ function App() {
   const onLoadwithCode = async () => {
     const code = searchParams.get("code");
     if (!code) return;
-    const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
     const client_secret = LOCAL_CLIENT_SECRET!
-    const redirect_uri = !redirectUri ? HOST! : redirectUri;
     if (code == "logout") {
       if (localStorage.getItem("token")) {
         const token = JSON.parse(localStorage.getItem("token")!)
@@ -113,13 +116,12 @@ function App() {
   }
 
   const Login = async (loginType: any, data:any) => {
-    const client_id = !clientId ? LOCAL_CLIENT_ID! : clientId;
-    const redirect_uri = redirectUri!;
     const payload = {
           ...data,
           client_id, 
           state, 
-          redirect_uri
+          redirect_uri,
+          scope
         };
     const response = await loginType(payload);
     return window.location.href = response.data.redirect_url;

@@ -27,7 +27,7 @@ providerUserSchema.pre("save", async function (next){
                     const new_user = new User({
                         displayName: this.data.name,
                         email: this.data.email,
-                        username: this.data.given_name,
+                        username: this.data.given_name.toLowerCase(),
                         pictureUrl: this.data.picture
                     });
                     await new_user.save();

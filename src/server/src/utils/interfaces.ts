@@ -69,5 +69,5 @@ export interface AccessToken {
     sub: string;
     client_id: string;
     email: string;
-    scope: string[]
+    scope: string
 }
